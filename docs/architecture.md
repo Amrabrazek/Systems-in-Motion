@@ -92,13 +92,4 @@ Why actions instead of setters: levels, tests, replays and (later) shareable lin
 
 ## Folder layout
 
-```
-src/
-  engine/  types.ts  rng.ts  step.ts  metrics.ts  tagged.ts  *.test.ts
-  sim/     loop.ts  store.ts  useSim.ts
-  ui/      App.tsx  stage/  charts/  controls/  lesson/  theme.css
-  kits/    flow/  (data-layout/ … when their first lab is built)
-  topics/  index.ts  one-server/  (load-balancer/ …)
-docs/      design + decisions
-.github/workflows/  ci.yml  pages.yml
-```
+See [navigation.md](navigation.md) for the full tree and the route map.

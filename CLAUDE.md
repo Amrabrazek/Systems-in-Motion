@@ -8,7 +8,7 @@ Planning source of truth: `brief.md` in the planning project. This file is its c
 Design docs: [`docs/`](docs/README.md). Read the relevant one before changing that area.
 
 ## Stack
-TypeScript (strict) · React + Vite · uPlot (charts) · Vitest · ESLint + Prettier · GitHub Pages.
+TypeScript (strict) · React + Vite · React Router (hash URLs) · uPlot (charts) · Vitest · ESLint + Prettier · GitHub Pages.
 Diagram: plain SVG for now; React Flow only when a milestone needs dragging (ADR 0006, proposed).
 
 ## Commands
@@ -28,6 +28,7 @@ src/sim/      the loop: fixed timestep, pause, speed, reset. Owns the store.
 src/ui/       reads state and draws it. Sends actions. No sim math here.
 src/kits/     shared visual kits (Flow, Data layout, Time & copies, Algorithm).
 src/topics/<id>/  one page per topic: level/lab data, page, content, tests.
+src/parts/    deep-dive pages (markdown). Routes + full tree: docs/navigation.md
 ```
 - `src/engine` must not import from `ui`, `sim`, `react`, or touch `window`/`document`. Lint enforces it.
 - Engine is **flow math** (rates, queues, utilization per box), not one object per request.
