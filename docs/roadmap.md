@@ -52,8 +52,32 @@ Page types: **Level** = Play mode (predict → break → fix), **Lab** = A vs B 
 | 18 | Cache eviction (LRU vs LFU) | Lab | Algorithm | eviction policies | 17 |
 | 19 | LB algorithms | Lab | Algorithm (+ Flow) | per-server speed | 2, 17 |
 | 20 | Outside services, Cost | Deep dive | none | none | anytime |
+| D | Design mode | Tool | Flow | headless sweep, `users(t)`, URL encoding | 2 |
 
-v1 scope stays: topics 1–3 + 11 + one deep dive per part. The rest is the queue, not a promise.
+## v1: the smallest version that serves both audiences
+
+```
+Learn   levels 1–3 (one server, load balancer, cache) + 1 lab (SQL vs NoSQL)
+Design  chain builder · parameters with tags · traffic scripts · kill server/AZ
+        · breaking point · share link            (see design-mode.md)
+```
+
+| Change vs the old v1 | Why |
+|---|---|
+| ➕ Design mode (about 4 PRs) | the engineer door (ADR 0010) |
+| ➖ Sandbox | Design replaces it |
+| ➖ Deep dive per part → v1.5 | pays for Design. v1 keeps a one-line definition + glossary per part |
+| ➖ Compare mode → v1.5 | breaking point + share link cover most of it |
+
+⚠️ Net: v1 is still bigger than before. Design is the part to cut further if v1 drags.
+The rest of the topic list is the queue, not a promise.
+
+## Milestones
+
+```
+M1 One box breaks  ─▶ M2 Load balancer + kill ─▶ M3 Level 1 (Play) ─▶ M4 Design v0 ─▶ v1
+   (shared engine)     (multi-hop, numbers data)                        (builder, breaking point, share)
+```
 
 ## How parallel work stays safe
 

@@ -13,5 +13,5 @@ on the scope-creep list.
 **Seam for later:** dots render through one `DotLayer` interface (`draw(dots)`, `clear()`), so a
 Canvas layer can replace SVG dots in one file if a topic needs thousands of dots. Boxes stay SVG.
 
-**Revisit when:** Sandbox lets learners add and wire parts themselves. Then React Flow can host
+**Revisit when:** Design mode gets a free-form canvas (any part, any wiring). Then React Flow can host
 the boxes while our overlay still draws dots.

@@ -31,6 +31,10 @@ errorRate    = dropped / λ
 
 ## Starting numbers (M1)
 
+These live in `src/data/numbers/teaching.ts`, never in engine code (ADR 0009). Design mode uses
+`typical.ts` (ranges with citations) and the user's own numbers.
+
+
 | Name | Value | Tag | Note |
 |---|---|---|---|
 | requests per user | 0.1 /s | T | one request every 10 s |
@@ -50,3 +54,4 @@ computed in `engine/metrics.ts`, so tests and charts agree.
 - Load balancer: splits λ across `up` targets (round robin = equal split in flow math).
 - Kill node / zone / region: set `up = false` on matching nodes; the split recomputes next step.
 - Traffic scripts: `users(t)` instead of a constant.
+- Headless runs for Design's breaking point: same `step()`, no drawing, many runs (ADR 0010).

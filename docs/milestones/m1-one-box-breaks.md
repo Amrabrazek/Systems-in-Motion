@@ -21,7 +21,7 @@ Out of scope: load balancer, levels, Play mode, deep dives, kill buttons, React 
 | # | PR | Contents | Proves |
 |---|---|---|---|
 | 1 | Scaffold | Vite + React + TS strict, Vitest, ESLint (engine import rule), Prettier, CI, Pages deploy + PR previews (Vite `base` from env), hash router, Playwright smoke test of a blank page | Pipeline works before any feature |
-| 2 | Engine | `types`, `tagged`, `rng`, `step` for users → one server, `metrics` (EMA), tests | The math, with no UI |
+| 2 | Engine | `types`, `data/numbers/teaching.ts`, `rng`, `step` for users → one server, `metrics` (EMA), tests | The math, with no UI |
 | 3 | Sim loop | fixed 50 ms step, accumulator, pause / speed / reset, store + `useSim` hook, tests with a fake clock | Determinism |
 | 4 | Stage | `topics/one-server/` page + topic registry. SVG: users group, waiting line slots, server box with health color + busy bar, slider, "why" line | It's playable |
 | 5 | Dots + charts | `DotLayer` (SVG) fed by a dot sampler from edge rate (red = dropped), uPlot latency + error, legend with M/R/T | It feels alive |

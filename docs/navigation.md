@@ -11,7 +11,9 @@ src/
     data-layout/     (built with SQL vs NoSQL)
   ui/
     shared/          TradeoffCard, Chart, Slider, NumberTag, PageShell, Glossary
-    app/             router, Home, Sandbox, NotFound
+    app/             router, Home, NotFound
+  design/            Design mode: builder, params panel, breaking point, share
+  data/numbers/      teaching.ts · typical.ts · measured.ts   (ADR 0009)
   topics/
     index.ts         registry: id, title, kit, order, status   ← one line per topic
     one-server/      page.tsx · level.ts · content.md · level.test.ts
@@ -26,12 +28,12 @@ Split by **topic** for content, by **layer** for shared code. Topics may import 
 ## Pages and routes
 
 ```
-                     ┌──────────────── #/  Home: topic map ────────────────┐
-                     │  path of topics grouped by kit, with ✓ / next / soon │
-                     └──────┬──────────────────────┬─────────────────┬──────┘
-                            ▼                      ▼                 ▼
-               #/learn/one-server     #/learn/sql-vs-nosql      #/sandbox
-               (Level: Play mode)     (Lab: A vs B)             (free sliders, all built parts)
+                ┌────────────────────── #/  Home ──────────────────────┐
+                │     [ Learn ]  topic map         [ Design ]  builder │
+                └──────┬──────────────────────┬────────────────┬───────┘
+                       ▼                      ▼                ▼
+          #/learn/one-server     #/learn/sql-vs-nosql      #/design?d=…
+          (Level: Play mode)     (Lab: A vs B)             (build, stress, kill, breaking point)
                     │      │
      click a box ───┘      └─── "Next topic" ──▶ #/learn/load-balancer
                     ▼
@@ -42,14 +44,14 @@ Split by **topic** for content, by **layer** for shared code. Topics may import 
 |---|---|---|
 | `#/` | Home: topic map | M1 (one card) |
 | `#/learn/:topicId` | Topic page (Level or Lab, from the registry) | M1 (one-server, no Play wrapper yet) |
-| `#/parts/:partId` | Deep dive for one part | v1 |
-| `#/sandbox` | Sandbox | v1 |
+| `#/parts/:partId` | Deep dive for one part | v1.5 |
+| `#/design` | Design mode; `?d=` holds a shared design | M4 |
 
-Every page shares one shell: top bar (Home · topic title · Sandbox) and the M/R/T legend.
+Every page shares one shell: top bar (Home · Learn · Design) and the M/R/T legend.
 Progress (✓ on the map) lives in `localStorage` only. No accounts.
 
-This replaces the brief's "one Playground page": the Playground becomes **Sandbox**, and each
-level is its own topic page.
+This replaces the brief's "one Playground page" and Sandbox: free building is **Design**, and each
+level is its own topic page. A level ends with "Open this in Design" (same world, as a link).
 
 ## Routing
 

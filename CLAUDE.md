@@ -1,7 +1,9 @@
 # Systems in Motion
 
-A browser playground that teaches system design to beginners by letting them **watch systems
-behave live**: add load, see a box turn red, add the part that fixes it, see what breaks next.
+A browser tool where you **watch systems behave live**: add load, see a box turn red, add the
+part that fixes it, see what breaks next. One engine, two doors (ADR 0010):
+- **Learn**: guided levels and labs for students and junior devs.
+- **Design**: engineers build their own system, stress it, kill parts, find where it breaks.
 Everything is simulated in the browser. There are no real servers.
 
 Planning source of truth: `brief.md` in the planning project. This file is its code-facing mirror.
@@ -28,12 +30,16 @@ src/sim/      the loop: fixed timestep, pause, speed, reset. Owns the store.
 src/ui/       reads state and draws it. Sends actions. No sim math here.
 src/kits/     shared visual kits (Flow, Data layout, Time & copies, Algorithm).
 src/topics/<id>/  one page per topic: level/lab data, page, content, tests.
+src/design/    Design mode (builder, params, breaking point, share link).
+src/data/numbers/  every number, tagged, by profile (teaching / typical / measured).
 src/parts/    deep-dive pages (markdown). Routes + full tree: docs/navigation.md
 ```
 - `src/engine` must not import from `ui`, `sim`, `react`, or touch `window`/`document`. Lint enforces it.
 - Engine is **flow math** (rates, queues, utilization per box), not one object per request.
 - **Dots are a UI-only picture** sampled from engine rates. The engine never knows about dots.
 - Every node has `region` and `zone`, even when the UI hides them.
+- **No number literals in the engine.** Capacities, latencies, rates come from `src/data/numbers/` (ADR 0009).
+- The engine must run headless (no drawing) and fast: Design runs it many times to find the breaking point.
 - Topics never import other topics. A new engine/kit feature ships in its own PR before the topic using it.
   Topic list and order: [`docs/roadmap.md`](docs/roadmap.md).
 - Change behavior through **actions** (`setUsers`, `killNode`, …), never by mutating state from the UI.
@@ -47,10 +53,10 @@ src/parts/    deep-dive pages (markdown). Routes + full tree: docs/navigation.md
   Engine tests can't catch a blank page.
 
 ## Content rules
-- Plain language. Any needed term gets a one-line definition.
+- Learn: plain language. Design: real terms (p99, RPS). Either way, any term gets a one-line definition.
 - Concepts before tools: generic shapes, AWS names as small tags. Never the AWS icon set.
-- Every number is tagged: **M** Measured (with source) · **R** Rule of thumb (range) · **T** Teaching guess.
-  In code, user-facing numbers use `tagged(value, 'T', 'why')` so the UI can show the tag.
+- Every number is tagged: **M** Measured (with source) · **R** Rule of thumb (range, with source) · **T** Teaching guess · **U** the user's own.
+  The UI shows the tag beside every number; hover shows the note and source.
 - Cost is relative only: cheap / medium / expensive.
 - Every fix shows a tradeoff card: Fixes / Cost / Complexity / New risk / Breaks next.
 

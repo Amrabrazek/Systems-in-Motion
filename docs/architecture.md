@@ -20,6 +20,8 @@
 | `ui/` | Components, SVG stage, dot sampler, charts | Sim math, mutating state |
 | `kits/` | Shared visual kits and their models | Topic-specific content |
 | `topics/<id>/` | One page: level/lab data, content, tests | Import another topic |
+| `design/` | Design mode: builder, params, breaking point, share | Its own sim math |
+| `data/numbers/` | Every number, tagged, by profile | Logic |
 
 ## One frame
 
@@ -47,8 +49,8 @@ sequenceDiagram
 ## Data model (sketch, M1 fields in bold)
 
 ```ts
-type Tag = 'M' | 'R' | 'T';
-interface Tagged<T> { value: T; tag: Tag; note: string; source?: string }  // source required for 'M'
+type Tag = 'M' | 'R' | 'T' | 'U';   // U = the user's own number (Design)
+interface Tagged<T> { value: T; tag: Tag; note: string; source?: string }  // from src/data/numbers (ADR 0009)
 
 type NodeKind = 'users' | 'server' | 'loadBalancer' | 'cache' | 'database';
 
@@ -66,6 +68,7 @@ interface World {                 // what a level or sandbox starts from
   nodes: SimNode[]; edges: SimEdge[];
   traffic: { users: number; requestsPerUserPerSec: Tagged<number> };
   seed: number;
+  numbers: 'teaching' | 'typical' | 'measured';  // which profile, plus user overrides
 }
 
 interface NodeStatus {            // computed each step
