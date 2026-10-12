@@ -26,13 +26,15 @@ src/engine/   pure TS. No React, no DOM, no Date.now(), no Math.random().
               step(state, actions, dt) → newState. Seeded RNG only.
 src/sim/      the loop: fixed timestep, pause, speed, reset. Owns the store.
 src/ui/       reads state and draws it. Sends actions. No sim math here.
-src/levels/   data only: starting world, traffic script, steps, fixes, tradeoff cards.
-src/content/  deep-dive pages (markdown).
+src/kits/     shared visual kits (Flow, Data layout, Time & copies, Algorithm).
+src/topics/<id>/  one page per topic: level/lab data, page, content, tests.
 ```
 - `src/engine` must not import from `ui`, `sim`, `react`, or touch `window`/`document`. Lint enforces it.
 - Engine is **flow math** (rates, queues, utilization per box), not one object per request.
 - **Dots are a UI-only picture** sampled from engine rates. The engine never knows about dots.
 - Every node has `region` and `zone`, even when the UI hides them.
+- Topics never import other topics. A new engine/kit feature ships in its own PR before the topic using it.
+  Topic list and order: [`docs/roadmap.md`](docs/roadmap.md).
 - Change behavior through **actions** (`setUsers`, `killNode`, …), never by mutating state from the UI.
 
 ## Testing

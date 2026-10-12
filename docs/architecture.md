@@ -10,7 +10,7 @@
  └───┬────┘                                └──────┬──────┘                            └──────────────┘
      │ every frame (60/s), outside React          │
      └──────── dots + box colors ◀────────────────┘
- levels/  data the ui + sim load         content/  markdown deep dives
+ topics/  one page each, on shared kits
 ```
 
 | Layer | Owns | Never does |
@@ -18,7 +18,8 @@
 | `engine/` | Types, `step()`, metrics, seeded RNG | Imports React, reads the clock, draws |
 | `sim/` | Fixed-timestep loop, pause/speed/reset, the store, action queue | Sim math |
 | `ui/` | Components, SVG stage, dot sampler, charts | Sim math, mutating state |
-| `levels/` | Starting worlds, traffic scripts, steps, fixes | Logic beyond plain data |
+| `kits/` | Shared visual kits and their models | Topic-specific content |
+| `topics/<id>/` | One page: level/lab data, content, tests | Import another topic |
 
 ## One frame
 
@@ -96,8 +97,8 @@ src/
   engine/  types.ts  rng.ts  step.ts  metrics.ts  tagged.ts  *.test.ts
   sim/     loop.ts  store.ts  useSim.ts
   ui/      App.tsx  stage/  charts/  controls/  lesson/  theme.css
-  levels/  presets.ts  (M3+: level-1.ts …)
-  content/ (deep dives, v1)
+  kits/    flow/  (data-layout/ … when their first lab is built)
+  topics/  index.ts  one-server/  (load-balancer/ …)
 docs/      design + decisions
 .github/workflows/  ci.yml  pages.yml
 ```
