@@ -10,5 +10,8 @@ on the scope-creep list.
 | React Flow from M1 (brief) | drag, zoom, edges for free later | ~heavy dependency for one box; its node rendering goes through React, which fights the 60/s stage (ADR 0005) |
 | **Own SVG stage now (pick)** | the prototype already proves it; full control of dots and queues; zero dependency | we write layout per level by hand |
 
+**Seam for later:** dots render through one `DotLayer` interface (`draw(dots)`, `clear()`), so a
+Canvas layer can replace SVG dots in one file if a topic needs thousands of dots. Boxes stay SVG.
+
 **Revisit when:** Sandbox lets learners add and wire parts themselves. Then React Flow can host
 the boxes while our overlay still draws dots.

@@ -8,7 +8,7 @@ Planning source of truth: `brief.md` in the planning project. This file is its c
 Design docs: [`docs/`](docs/README.md). Read the relevant one before changing that area.
 
 ## Stack
-TypeScript (strict) · React + Vite · React Router (hash URLs) · uPlot (charts) · Vitest · ESLint + Prettier · GitHub Pages.
+TypeScript (strict) · React + Vite · React Router (hash URLs) · uPlot (charts) · Vitest + Playwright · ESLint + Prettier · GitHub Pages with PR previews (ADR 0008).
 Diagram: plain SVG for now; React Flow only when a milestone needs dragging (ADR 0006, proposed).
 
 ## Commands
@@ -43,6 +43,8 @@ src/parts/    deep-dive pages (markdown). Routes + full tree: docs/navigation.md
   "at 2× capacity, error rate > 0", "below 70% utilization, queue stays 0".
 - Same seed + same actions ⇒ same result. Keep tests deterministic; no timers.
 - UI: test logic that has branches (selectors, level step machine). Skip snapshot tests.
+- One Playwright smoke test per milestone, run in CI (M1: page loads, raise users, server turns red).
+  Engine tests can't catch a blank page.
 
 ## Content rules
 - Plain language. Any needed term gets a one-line definition.

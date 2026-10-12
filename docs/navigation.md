@@ -51,17 +51,9 @@ Progress (✓ on the map) lives in `localStorage` only. No accounts.
 This replaces the brief's "one Playground page": the Playground becomes **Sandbox**, and each
 level is its own topic page.
 
-## Router decision
+## Routing
 
-| Option | Pro | Con |
-|---|---|---|
-| Normal URLs (`/learn/x`) | clean links | GitHub Pages has no server rewrites: refresh = 404 unless we add a `404.html` redirect hack |
-| **Hash URLs (`#/learn/x`) (pick)** | works on GitHub Pages with zero tricks; links still shareable | slightly uglier URLs |
-
-| Option | Pro | Con |
-|---|---|---|
-| Hand-written router (`hashchange` + switch) | no dependency | we rebuild lazy loading, params, 404 |
-| **React Router, hash mode (pick)** | standard; lazy-loads each topic so pages stay small | one dependency |
+Hash URLs (`#/learn/x`) with React Router in hash mode, so it works on GitHub Pages and in PR
+preview subfolders. Why: [ADR 0008](decisions/0008-hosting-and-routing.md).
 
 Each topic page is **lazy-loaded**, so adding topic 20 doesn't slow down topic 1.
-**Revisit if:** we move hosting to Netlify/Cloudflare (they support rewrites, so normal URLs become free).
