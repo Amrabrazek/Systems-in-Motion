@@ -1,0 +1,1 @@
+import{t as e}from"./index-BT4vzhJ2.js";var t=e();function n(){return(0,t.jsxs)(`section`,{className:`placeholder`,children:[(0,t.jsx)(`h1`,{children:`One server`}),(0,t.jsx)(`p`,{children:`One box, more and more users. Coming in M1.`})]})}export{n as default};
