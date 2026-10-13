@@ -1,6 +1,7 @@
 # 0010 One engine, two doors: Learn and Design
 
-**Status:** proposed (replaces "beginners first, engineers later")
+**Status:** accepted (2026-10-13), review after M1
+Replaces: "beginners first, engineers later".
 
 ```
                 ┌─ Learn  : guided levels + labs, plain language        ← students, juniors

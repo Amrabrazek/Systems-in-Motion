@@ -1,6 +1,6 @@
 # 0005 The sim loop lives outside React, with a fixed time step
 
-**Status:** proposed (needs Amr's OK)
+**Status:** accepted (2026-10-13), review after M1
 
 This is the decision most likely to hurt later if we get it wrong.
 

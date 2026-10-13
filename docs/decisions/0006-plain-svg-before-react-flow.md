@@ -1,6 +1,6 @@
 # 0006 Plain SVG stage now, React Flow only when we need dragging
 
-**Status:** proposed (changes the brief's stack; needs Amr's OK)
+**Status:** accepted (2026-10-13), review after M1
 
 M1–M3 have **fixed layouts** that come from level data. The free-form drag-and-drop builder is
 on the scope-creep list.

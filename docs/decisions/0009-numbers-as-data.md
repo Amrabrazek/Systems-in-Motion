@@ -1,6 +1,6 @@
 # 0009 Every number lives in a data file, with its tag and source
 
-**Status:** proposed
+**Status:** accepted (2026-10-13), review after M1
 
 Engineers will only trust the results if they can see where each number comes from, and
 replace it. Real benchmarks are too expensive now, so the design has to let them drop in later
