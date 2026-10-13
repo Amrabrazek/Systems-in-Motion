@@ -12,7 +12,7 @@ flowchart LR
 - [x] Pause, slow-mo and reset work
 - [x] "Why" line says what the box is doing (busy %, waiting, failing/s)
 - [x] `engine/` has unit tests; Playwright smoke test (load, raise users, server turns red); CI is green
-- [ ] Deployed to GitHub Pages
+- [x] Deployed to GitHub Pages
 
 Out of scope: load balancer, levels, Play mode, deep dives, kill buttons, React Flow.
 
