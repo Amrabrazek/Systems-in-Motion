@@ -1,0 +1,7 @@
+dist
+node_modules
+playwright-report
+test-results
+package-lock.json
+# Docs are hand-formatted (ASCII diagrams, aligned tables).
+*.md
