@@ -59,13 +59,30 @@ users ──λ──▶ [web] ──served/k──▶ each of its k next boxes �
 - `errorRate` = drops at every hop / λ. `throughput` = what the last boxes on each path served.
 - End-to-end `latencyMs` = a box's own latency + its next hops' latencies, weighted by the
   traffic on each edge (an idle spare box doesn't make the average look better).
+  A dead box is left out of the weighting, so latency doesn't look better during an outage.
+
+## Load balancer and kill (M2, ADR 0011)
+
+```
+kill B ──▶ B down ──(lb.healthCheckSeconds: LB still sends 1 in k to B, those fail)──▶ LB notices ──▶ split over the rest
+```
+
+- `loadBalancer` node: no capacity, adds `lb.baseLatencyMs`, splits evenly across the targets it
+  **believes** are up. Beliefs live in `SimState.lbView` (`engine/loadBalancer.ts`), apart from the
+  target's real `up`.
+- A belief flips only after reality has differed for `lb.healthCheckSeconds` without a break, so a
+  box revived inside the window is never marked down, and a revived box waits the window before
+  it gets traffic again.
+- No target believed up: the LB **fails open** and splits across all of them (as AWS ALB does).
+- New targets (more servers) join the split right away. Simplification: real LBs check them first.
+- `killNode` / `reviveNode` only accept servers; anything else throws. Killing a box drops its
+  waiting line once (counted in `dropped` that step). `errorRate` is capped at 1 for that spike.
 
 ## Smoothing
 The engine reports raw numbers. Charts show an exponential moving average (time constant 0.4 s)
 computed in `engine/metrics.ts`, so tests and charts agree.
 
 ## Later (not M1)
-- Load balancer: splits λ across `up` targets (round robin = equal split in flow math).
-- Kill node / zone / region: set `up = false` on matching nodes; the split recomputes next step.
+- Kill zone / region: set `up = false` on matching nodes; the LB notices after its health checks.
 - Traffic scripts: `users(t)` instead of a constant.
 - Headless runs for Design's breaking point: same `step()`, no drawing, many runs (ADR 0010).
