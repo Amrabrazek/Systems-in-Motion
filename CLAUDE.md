@@ -11,7 +11,7 @@ Design docs: [`docs/`](docs/README.md). Read the relevant one before changing th
 
 ## Stack
 TypeScript (strict) · React + Vite · React Router (hash URLs) · uPlot (charts) · Vitest + Playwright · ESLint + Prettier · GitHub Pages with PR previews (ADR 0008).
-Diagram: plain SVG for now; React Flow only when a milestone needs dragging (ADR 0006, proposed).
+Diagram: plain SVG for now; React Flow only when a milestone needs dragging (ADR 0006).
 
 ## Commands
 ```

@@ -1,6 +1,6 @@
 # 0008 GitHub Pages with PR previews and hash routes
 
-**Status:** proposed (from the tech-stack review, `research/tech-stack.md` in the planning project)
+**Status:** accepted (2026-10-13), review after M1
 
 GitHub Pages serves one site: no per-PR preview, and no "send every URL to index.html".
 

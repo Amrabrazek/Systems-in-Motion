@@ -1,6 +1,6 @@
 # 0007 Topics are isolated pages on shared kits
 
-**Status:** proposed (needs Amr's OK)
+**Status:** accepted (2026-10-13), review after M1
 
 | Option | Pro | Con |
 |---|---|---|
