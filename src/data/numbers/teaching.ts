@@ -38,6 +38,20 @@ export const teaching: NumberEntry[] = [
     note: 'A light web request on an idle server.',
   },
   {
+    id: 'lb.baseLatencyMs',
+    value: 2,
+    unit: 'ms',
+    tag: 'T',
+    note: 'The load balancer adds a little time to every request.',
+  },
+  {
+    id: 'lb.healthCheckSeconds',
+    value: 3,
+    unit: 's',
+    tag: 'T',
+    note: 'Time before the load balancer notices a box died or came back. Real defaults are tens of seconds (e.g. AWS ALB: 30 s checks × 2 failures); 3 s keeps the lesson watchable.',
+  },
+  {
     id: 'ux.feelsSlowMs',
     value: 1000,
     unit: 'ms',

@@ -44,7 +44,22 @@ export interface WorkNode {
   up: boolean; // false = killed
 }
 
-export type SimNode = UsersNode | WorkNode;
+/**
+ * Routes traffic; does no work, so it has no capacity or queue (ADR 0011). It splits evenly
+ * across the targets it *believes* are up, and only notices a change after health checks.
+ */
+export interface LoadBalancerNode {
+  id: string;
+  kind: 'loadBalancer';
+  label: string;
+  awsTag?: string; // e.g. "ALB"
+  baseLatencyMs: NumberEntry; // the little time it adds to every request
+  healthCheckSeconds: NumberEntry; // how long a target must look different before the LB believes it
+  region: string;
+  zone: string;
+}
+
+export type SimNode = UsersNode | WorkNode | LoadBalancerNode;
 
 export interface SimEdge {
   id: string;
@@ -74,7 +89,7 @@ export interface World {
 
 export type Health = 'ok' | 'warn' | 'bad';
 
-/** Computed each step for every work node. Rates are requests/s. */
+/** Computed each step for every server and load balancer. Rates are requests/s. */
 export interface NodeStatus {
   incoming: number;
   served: number;
@@ -95,14 +110,28 @@ export interface RngState {
   seed: number;
 }
 
+/**
+ * What one load balancer believes about one target. Kept apart from the target's real `up`,
+ * because the gap between the two is the error spike after a kill (ADR 0011).
+ */
+export interface TargetView {
+  seenUp: boolean;
+  mismatchSeconds: number; // how long reality has differed from `seenUp`; resets when they agree
+}
+
 export interface SimState {
   time: number; // seconds of sim time
   world: World;
   rng: RngState;
   nodes: Record<string, NodeStatus>;
   edges: Record<string, { rate: number }>; // the UI samples dots from this
+  lbView: Record<string, Record<string, TargetView>>; // load balancer id → target id → belief
   totals: Totals; // raw, this step
   smoothed: Totals; // EMA of totals; what charts draw (docs/engine.md, Smoothing)
 }
 
-export type Action = { type: 'setUsers'; users: number } | { type: 'replaceWorld'; world: World };
+export type Action =
+  | { type: 'setUsers'; users: number }
+  | { type: 'replaceWorld'; world: World }
+  | { type: 'killNode'; nodeId: string }
+  | { type: 'reviveNode'; nodeId: string };
