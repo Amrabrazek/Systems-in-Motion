@@ -46,8 +46,9 @@ interface Level {
   fixes: Fix[];                 // 2–3 options, plus "do nothing"
 }
 interface Fix { id: string; label: string; world: World; card: TradeoffCard }
-interface TradeoffCard {
-  fixes: string; cost: 'cheap' | 'medium' | 'expensive' | string;  // e.g. "cheap → medium"
+type Cost = 'cheap' | 'medium' | 'expensive';
+interface TradeoffCard {                    // src/ui/shared/tradeoff.ts
+  fixes: string; cost: Cost | { from: Cost; to: Cost };  // { from: 'cheap', to: 'medium' }
   complexity: string; newRisk: string; breaksNext: string;
 }
 ```

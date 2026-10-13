@@ -1,0 +1,71 @@
+/* Tradeoff card (docs/design-system.md, part 5). The hard shadow makes "every fix has a price" feel physical. */
+.tradeoff {
+  max-width: 34rem;
+  border: 1px solid var(--color-text);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.tradeoff-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-soft);
+}
+
+.tradeoff-name {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+
+.tradeoff-aws {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.tradeoff-rows {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  padding: var(--space-3);
+}
+
+/* Each row is a dt/dd pair; subgrid keeps all labels in one column. */
+.tradeoff-row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: baseline;
+}
+
+.tradeoff-row dt {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.tradeoff-row dd {
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+/* Narrow screens: label above the text instead of beside it. */
+@media (max-width: 30rem) {
+  .tradeoff-rows {
+    grid-template-columns: 1fr;
+  }
+
+  .tradeoff-row {
+    grid-template-columns: 1fr;
+  }
+}

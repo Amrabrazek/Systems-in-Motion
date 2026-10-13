@@ -111,6 +111,13 @@ The parts every topic reuses. Build them once in `src/ui/shared/` or the Flow ki
 - Header in `--color-surface-soft`: "Fix: \<name\>" plus the AWS tag on the right.
 - Five rows, always in this order: **Fixes / Cost / Complexity / New risk / Breaks next**.
   Labels are mono, xs, uppercase, muted. Cost is cheap / medium / expensive only.
+- Built: `src/ui/shared/TradeoffCard.tsx`, data type in `tradeoff.ts`.
+  `<TradeoffCard name="Load balancer + second server" awsTag="ELB" card={…} />`
+- Cost is one level or a move between two (`{ from: 'cheap', to: 'medium' }` reads "cheap → medium").
+  The type only allows the three words, so a typo or a price fails to compile.
+- Text only, no numbers in the card. Numbers stay on the stage, where they carry their tag.
+- An `<article>` with a `<dl>`, so screen readers read each label with its text.
+  Under 30rem wide the labels sit above their text instead of beside it.
 
 ### 6. Number + tag
 - Value in mono with `tabular-nums`, then the tag: a small outlined box with the letter.
