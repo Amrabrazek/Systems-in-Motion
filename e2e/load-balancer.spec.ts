@@ -25,7 +25,11 @@ test('a third server gives the spare that survives a kill', async ({ page }) => 
   await expect(page.getByRole('group', { name: 'Number of servers' }).locator('output')).toHaveText(
     '3',
   );
+  // The live tradeoff meter agrees before the kill, and flips once the spare is used up.
+  const rightNow = page.getByRole('region', { name: 'Right now' });
+  await expect(rightNow.getByText('✓ holds')).toBeVisible();
   await page.getByRole('button', { name: 'Kill Server C' }).click();
+  await expect(rightNow.getByText('! fails')).toBeVisible();
 
   const stage = page.getByRole('region', { name: 'Live system' });
   await expect(stage.getByText('✕ DOWN').first()).toBeVisible();

@@ -120,6 +120,16 @@ The parts every topic reuses. Build them once in `src/ui/shared/` or the Flow ki
 - Text only, no numbers in the card. Numbers stay on the stage, where they carry their tag.
 - An `<article>` with a `<dl>`, so screen readers read each label with its text.
   Under 30rem wide the labels sit above their text instead of beside it.
+- Optional **"Right now" meters** (`meters` prop, built by `src/ui/shared/meters.ts`), between the
+  header and the rows. Each meter is three steps, never a percent or a smooth bar: the levels are
+  relative, and a bar would claim precision we don't have. More filled steps always means heavier
+  (more to pay, more to run, more at risk).
+  - **Cost** and **Complexity**: accent fill. They move with the design (server count, a load
+    balancer), not with load. Cost thresholds are tagged numbers (`cost.*FromServers`, T).
+  - **If 1 server dies** (marked LIVE): health fill plus symbol and word (✓ holds · ~ tight ·
+    ! fails), and one plain line of why under it. Computed by the engine (`survivesLosingOne`)
+    from capacity, so it does not flicker during the health-check gap.
+  - Still no numbers in the card.
 
 ### 6. Number + tag
 - Value in mono with `tabular-nums`, then the tag: a small outlined box with the letter.

@@ -94,4 +94,18 @@ export const teaching: NumberEntry[] = [
     tag: 'T',
     note: 'Chart smoothing: steady enough to read, quick enough to feel live.',
   },
+  {
+    id: 'cost.mediumFromServers',
+    value: 2,
+    unit: 'servers',
+    tag: 'T',
+    note: 'Cost is relative only. From this many servers (plus a load balancer) the bill reads "medium".',
+  },
+  {
+    id: 'cost.expensiveFromServers',
+    value: 4,
+    unit: 'servers',
+    tag: 'T',
+    note: 'From this many servers the bill reads "expensive". Dead servers still count: you pay for them.',
+  },
 ];

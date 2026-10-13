@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { TradeoffCard } from './TradeoffCard';
+import type { Meter } from './meters';
 import { costText, type TradeoffCard as Card } from './tradeoff';
 
 const card: Card = {
@@ -49,5 +50,32 @@ describe('tradeoff card', () => {
     expect(withTag).toContain('>Fix: Load balancer<');
     expect(withTag).toContain('ELB');
     expect(withoutTag).not.toContain('tradeoff-aws');
+  });
+});
+
+describe('tradeoff card meters', () => {
+  const meter: Meter = {
+    label: 'If 1 server dies',
+    level: 3,
+    word: '! fails',
+    look: 'bad',
+    live: true,
+    why: 'The others cannot carry its load.',
+  };
+
+  it('leaves the card as it was when no meters are given', () => {
+    const html = renderToStaticMarkup(<TradeoffCard name="Load balancer" card={card} />);
+    expect(html).not.toContain('Right now');
+  });
+
+  it('shows each meter with its word, its step count and, when live, why', () => {
+    const html = renderToStaticMarkup(
+      <TradeoffCard name="Load balancer" card={card} meters={[meter]} />,
+    );
+    expect(html).toContain('Right now');
+    expect(html).toContain('! fails');
+    expect(html).toContain('aria-label="3 of 3"');
+    expect(html.match(/meter-step is-on/g)).toHaveLength(3);
+    expect(html).toContain(meter.why);
   });
 });
