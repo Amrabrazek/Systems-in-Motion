@@ -123,3 +123,17 @@
   fill: var(--color-text-muted);
   font-size: var(--font-size-xs);
 }
+
+/* Request dots (design system part 2): blue going in, green once answered, red when turned away. */
+.dot {
+  fill: var(--color-accent);
+  filter: var(--dot-glow);
+}
+
+.dot--answered {
+  fill: var(--color-ok);
+}
+
+.dot--dropped {
+  fill: var(--color-bad);
+}
