@@ -20,6 +20,14 @@ export const topics: TopicInfo[] = [
     status: 'building',
     Page: lazy(() => import('./one-server/page')),
   },
+  {
+    id: 'load-balancer',
+    title: 'Load balancer',
+    kit: 'flow',
+    page: 'level',
+    status: 'building',
+    Page: lazy(() => import('./load-balancer/page')),
+  },
 ];
 
 export function findTopic(id: string): TopicInfo | undefined {
