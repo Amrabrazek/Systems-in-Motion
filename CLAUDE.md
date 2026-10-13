@@ -18,8 +18,10 @@ Diagram: plain SVG for now; React Flow only when a milestone needs dragging (ADR
 npm run dev        # local dev server
 npm test           # vitest (run before every commit)
 npm run typecheck  # tsc --noEmit
-npm run lint       # eslint, includes the engine import rule
+npm run lint       # eslint, includes the engine and topic import rules
+npm run format     # prettier (CI runs format:check)
 npm run build      # production build (CI runs this)
+npm run e2e        # Playwright smoke test against the build
 ```
 
 ## The one structural rule

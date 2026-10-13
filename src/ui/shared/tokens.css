@@ -1,0 +1,45 @@
+/*
+ * Design tokens: the only place colors, type and spacing are defined.
+ * Neutral placeholders until a look is picked (thread "UI design system options").
+ * Swapping the look should mean editing this file only.
+ */
+:root {
+  color-scheme: light dark;
+
+  --color-bg: #ffffff;
+  --color-surface: #f5f5f5;
+  --color-border: #d4d4d4;
+  --color-text: #1a1a1a;
+  --color-text-muted: #5c5c5c;
+  --color-accent: #2f5fd0;
+
+  /* Health colors used by every box (docs/engine.md). */
+  --color-ok: #2e8540;
+  --color-warn: #c68a00;
+  --color-bad: #c62828;
+
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.5rem;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 40px;
+
+  --radius: 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #161616;
+    --color-surface: #222222;
+    --color-border: #3a3a3a;
+    --color-text: #ededed;
+    --color-text-muted: #a3a3a3;
+    --color-accent: #7aa2ff;
+  }
+}
