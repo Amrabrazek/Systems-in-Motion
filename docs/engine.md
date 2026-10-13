@@ -45,12 +45,26 @@ These live in `src/data/numbers/teaching.ts`, never in engine code (ADR 0009). D
 | latency bend | ~70–80% busy | R | basic queueing theory |
 | "feels slow" line | ~1 s | R | Nielsen response-time limits |
 
+## Many boxes (M2)
+
+```
+users ──λ──▶ [web] ──served/k──▶ each of its k next boxes ──▶ …
+```
+
+- `step()` walks the graph in **flow order** (`engine/graph.ts`): a box runs after every box
+  that sends to it, so one pass per step is enough. A cycle or an edge to a missing box throws
+  in `createState` (and on `replaceWorld`).
+- Users split λ evenly across their edges. A box splits what it **served** evenly across its
+  outgoing edges, so an overloaded box shields the boxes after it.
+- `errorRate` = drops at every hop / λ. `throughput` = what the last boxes on each path served.
+- End-to-end `latencyMs` = a box's own latency + its next hops' latencies, weighted by the
+  traffic on each edge (an idle spare box doesn't make the average look better).
+
 ## Smoothing
 The engine reports raw numbers. Charts show an exponential moving average (time constant 0.4 s)
 computed in `engine/metrics.ts`, so tests and charts agree.
 
 ## Later (not M1)
-- Multi-hop: λ flows along edges; each box's `served` is the next box's `λ`.
 - Load balancer: splits λ across `up` targets (round robin = equal split in flow math).
 - Kill node / zone / region: set `up = false` on matching nodes; the split recomputes next step.
 - Traffic scripts: `users(t)` instead of a constant.
