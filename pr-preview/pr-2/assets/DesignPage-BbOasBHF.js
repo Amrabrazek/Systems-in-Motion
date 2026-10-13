@@ -1,1 +1,0 @@
-import{t as e}from"./index-BILFRmkB.js";var t=e();function n(){return(0,t.jsxs)(`section`,{className:`placeholder`,children:[(0,t.jsx)(`h1`,{children:`Design`}),(0,t.jsx)(`p`,{children:`Build your own system, stress it, and find where it breaks. Coming in M4.`})]})}export{n as default};
