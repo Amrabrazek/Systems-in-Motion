@@ -62,6 +62,12 @@ src/parts/    deep-dive pages (markdown). Routes + full tree: docs/navigation.md
 - Cost is relative only: cheap / medium / expensive.
 - Every fix shows a tradeoff card: Fixes / Cost / Complexity / New risk / Breaks next.
 
+## UI look
+- Follow [`docs/design-system.md`](docs/design-system.md) ("Lab bench").
+- Colors, fonts, spacing come only from tokens in `src/ui/shared/tokens.css`. No hex values or font names anywhere else.
+- Health is never color alone: every state shows a symbol and a word (✓ HEALTHY · ~ BUSY · ! OVERLOADED).
+- New token or shared part? Add it to the design system doc in the same PR.
+
 ## Code style
 - Small pure functions. Types in `src/engine/types.ts`. No `any`.
 - Names a beginner could read: `queueLength`, not `q`; `utilization`, not `rho`.
