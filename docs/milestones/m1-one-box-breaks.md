@@ -7,11 +7,11 @@ flowchart LR
 ```
 
 ## Done when
-- [ ] Moving the slider makes dots flow faster; past capacity they queue, box goes yellow → red
-- [ ] Latency and error charts update live
-- [ ] Pause, slow-mo and reset work
-- [ ] "Why" line says what the box is doing (busy %, waiting, failing/s)
-- [ ] `engine/` has unit tests; Playwright smoke test (load, raise users, server turns red); CI is green
+- [x] Moving the slider makes dots flow faster; past capacity they queue, box goes yellow → red
+- [x] Latency and error charts update live
+- [x] Pause, slow-mo and reset work
+- [x] "Why" line says what the box is doing (busy %, waiting, failing/s)
+- [x] `engine/` has unit tests; Playwright smoke test (load, raise users, server turns red); CI is green
 - [ ] Deployed to GitHub Pages
 
 Out of scope: load balancer, levels, Play mode, deep dives, kill buttons, React Flow.

@@ -2,8 +2,8 @@
 // DotLayer in step 5 so dots follow the same paths the stage draws.
 export const STAGE = {
   width: 760,
-  height: 320,
-  middle: 160,
+  height: 290,
+  middle: 135,
   people: { columns: 5, rows: 8, gap: 20, x: 50, radius: 5.5 },
   usersRight: 150, // where requests leave the users group
   queue: { start: 330, slots: 24, size: 7, gap: 9 },

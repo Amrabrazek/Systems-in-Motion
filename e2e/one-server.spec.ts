@@ -36,3 +36,16 @@ test('arrow keys move the users slider in small steps', async ({ page }) => {
   for (let i = 0; i < 10; i++) await page.keyboard.press('ArrowRight');
   await expect(page.locator('output')).not.toHaveText('100');
 });
+
+test('requests flow as dots and both charts draw', async ({ page }) => {
+  await page.goto('/#/learn/one-server');
+  await expect(page.locator('.flow-dots circle').first()).toBeAttached();
+  await expect(page.getByRole('region', { name: 'Latency' }).locator('canvas')).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Errors' }).locator('canvas')).toBeVisible();
+
+  await page.getByRole('slider').focus();
+  await page.keyboard.press('End');
+  await expect(page.locator('.flow-dots circle.dot--dropped').first()).toBeAttached({
+    timeout: 10_000,
+  });
+});

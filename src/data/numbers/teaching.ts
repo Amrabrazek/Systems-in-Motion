@@ -38,6 +38,19 @@ export const teaching: NumberEntry[] = [
     note: 'A light web request on an idle server.',
   },
   {
+    id: 'ux.feelsSlowMs',
+    value: 1000,
+    unit: 'ms',
+    range: [100, 1000],
+    tag: 'R',
+    note: '~0.1 s feels instant; past ~1 s people lose their flow.',
+    source: {
+      title: 'Nielsen, Response Times: The 3 Important Limits',
+      url: 'https://www.nngroup.com/articles/response-times-3-important-limits/',
+      date: '2026-10-13',
+    },
+  },
+  {
     id: 'rules.busyAt',
     value: 0.7,
     unit: 'utilization',

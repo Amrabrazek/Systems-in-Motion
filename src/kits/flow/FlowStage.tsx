@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { NodeStatus, SimState, UsersNode, WorkNode } from '../../engine';
 import { healthText } from './health';
 import { peopleShown, slotsFilled, STAGE } from './stageMath';
@@ -6,10 +7,10 @@ import './flow.css';
 const format = (value: number) => Math.round(value).toLocaleString('en-US');
 
 /**
- * The M1 Flow stage: users ──▶ waiting line ──▶ one box. Plain SVG (ADR 0006). Dots are drawn
- * on top by the DotLayer in step 5; this layer only shows state.
+ * The M1 Flow stage: users ──▶ waiting line ──▶ one box. Plain SVG (ADR 0006). `dots` is drawn
+ * between the lines and the box, so dots slide under the box as they are served.
  */
-export function FlowStage({ state }: { state: SimState }) {
+export function FlowStage({ state, dots }: { state: SimState; dots?: ReactNode }) {
   const users = state.world.nodes.find((node): node is UsersNode => node.kind === 'users');
   const server = state.world.nodes.find((node): node is WorkNode => node.kind === 'server');
   const status = server ? state.nodes[server.id] : undefined;
@@ -31,6 +32,7 @@ export function FlowStage({ state }: { state: SimState }) {
       <line className="flow-edge" x1={STAGE.usersRight} y1={middle} x2={queue.start} y2={middle} />
       <line className="flow-track" x1={queue.start} y1={middle} x2={box.x - 8} y2={middle} />
       <WaitingLine status={status} queueMax={server.queueMax.value} />
+      {dots}
       <ServerBox node={server} status={status} />
     </svg>
   );
