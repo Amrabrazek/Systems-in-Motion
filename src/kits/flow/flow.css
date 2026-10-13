@@ -12,6 +12,19 @@
   font-size: var(--font-size-xs);
 }
 
+.flow-caption {
+  fill: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.08em;
+}
+
+.flow-users-count {
+  fill: var(--color-text);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+
 .person {
   fill: var(--color-border);
 }
@@ -25,20 +38,18 @@
   stroke-width: 2;
 }
 
-.slot {
-  fill: none;
+.flow-track {
   stroke: var(--color-border);
-  stroke-width: 1;
+  stroke-width: 1.5;
+  stroke-dasharray: 3 4;
 }
 
-.slot--waiting {
+.slot {
   fill: var(--color-warn);
-  stroke: var(--color-warn);
 }
 
 .slot--full {
   fill: var(--color-bad);
-  stroke: var(--color-bad);
 }
 
 .flow-box-frame {
@@ -58,13 +69,14 @@
 }
 
 .flow-box-state {
+  font-weight: 500;
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   font-variant-numeric: tabular-nums;
 }
 
 .flow-box-bar {
-  fill: var(--color-surface-soft);
+  fill: var(--color-surface);
 }
 
 .flow-box--ok .flow-box-frame {
@@ -105,4 +117,9 @@
   .flow-box--bad .flow-box-frame {
     animation: none;
   }
+}
+
+.flow-box-note {
+  fill: var(--color-text-muted);
+  font-size: var(--font-size-xs);
 }

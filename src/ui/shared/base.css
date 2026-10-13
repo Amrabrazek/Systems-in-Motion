@@ -121,17 +121,38 @@ main {
 }
 
 .panel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   background: var(--color-surface);
 }
 
-.why {
+.stage {
+  padding: var(--space-2);
+}
+
+.panel-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
   margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.why {
+  font-size: var(--font-size-sm);
+}
+
+.why > span:last-child {
+  flex: 1 1 280px;
+  min-width: 0;
+  color: var(--color-text-muted);
+}
+
+.why strong {
+  color: var(--color-text);
+  font-weight: 600;
 }
 
 .pill {
@@ -140,6 +161,7 @@ main {
   border-radius: var(--radius-pill);
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
+  font-weight: 600;
   text-transform: uppercase;
 }
 
@@ -194,40 +216,30 @@ main {
 
 .users-slider {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
+  flex: 1 1 260px;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
 }
 
 .users-slider label {
+  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
 .users-slider input {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   accent-color: var(--color-accent);
 }
 
-.users-slider-ends {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+.users-slider output {
+  min-width: 6ch;
 }
 
 .facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
   margin: 0;
-}
-
-.facts dt {
-  color: var(--color-text-muted);
   font-size: var(--font-size-sm);
-}
-
-.facts dd {
-  margin: 0;
 }
 
 .sim-controls {
@@ -247,6 +259,10 @@ main {
   cursor: pointer;
 }
 
+.button:hover {
+  border-color: var(--color-text-muted);
+}
+
 .button--primary {
   border-color: var(--color-accent);
   background: var(--color-accent);
@@ -261,6 +277,7 @@ main {
 }
 
 .segmented .button {
+  padding-block: 0;
   border-color: transparent;
   background: transparent;
 }

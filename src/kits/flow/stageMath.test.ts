@@ -4,9 +4,10 @@ import { peopleShown, QUEUE_SLOTS, slotsFilled } from './stageMath';
 describe('stage picture', () => {
   it('lights more people as users grow, but never 0 for some users or more than the grid', () => {
     expect(peopleShown(0)).toBe(0);
-    expect(peopleShown(10)).toBe(1);
+    expect(peopleShown(10)).toBe(10);
     expect(peopleShown(100)).toBeLessThan(peopleShown(1000));
-    expect(peopleShown(1_000_000)).toBe(12);
+    expect(peopleShown(10_000)).toBe(40);
+    expect(peopleShown(1_000_000)).toBe(40);
   });
 
   it('shows one waiting request as one slot, and a full line as every slot', () => {

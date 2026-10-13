@@ -8,7 +8,7 @@ test('raising users overloads the one server', async ({ page }) => {
 
   await page.getByRole('slider').focus();
   await page.keyboard.press('End'); // 10,000 users
-  await expect(page.getByText('Users 10,000')).toBeVisible();
+  await expect(page.locator('output')).toHaveText('10,000');
 
   await expect(stage.getByText('! OVERLOADED').first()).toBeVisible({ timeout: 10_000 });
   await expect(stage.getByText('turned away')).toBeVisible();
@@ -27,12 +27,12 @@ test('pause stops the clock and reset brings the server back', async ({ page }) 
   await page.getByRole('button', { name: /Reset/ }).click();
   await page.getByRole('button', { name: /Play/ }).click();
   await expect(stage.getByText('✓ HEALTHY').first()).toBeVisible();
-  await expect(page.getByText('Users 100', { exact: true })).toBeVisible();
+  await expect(page.locator('output')).toHaveText('100');
 });
 
 test('arrow keys move the users slider in small steps', async ({ page }) => {
   await page.goto('/#/learn/one-server');
   await page.getByRole('slider').focus();
   for (let i = 0; i < 10; i++) await page.keyboard.press('ArrowRight');
-  await expect(page.getByText('Users 100', { exact: true })).toBeHidden();
+  await expect(page.locator('output')).not.toHaveText('100');
 });

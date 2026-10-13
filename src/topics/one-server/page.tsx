@@ -44,51 +44,41 @@ export default function OneServerPage() {
       </p>
 
       <section className="panel stage-panel" aria-label="Live system">
-        <FlowStage state={state} />
+        <div className="stage">
+          <FlowStage state={state} />
+        </div>
+        <div className="panel-row controls-row">
+          <UsersSlider position={position} onChange={moveSlider} />
+          <SimControls sim={sim} snapshot={snapshot} onReset={reset} />
+        </div>
         {server && status && (
-          <p className="why" aria-live="polite">
-            <span className={`pill pill--${status.health}`}>{healthText(status.health)}</span>{' '}
-            {whyLine(server, status).map((part, index) =>
-              part.bold ? (
-                <strong key={index}>{part.text}</strong>
-              ) : (
-                <span key={index}>{part.text}</span>
-              ),
-            )}
+          <p className="panel-row why" aria-live="polite">
+            <span className={`pill pill--${status.health}`}>{healthText(status.health)}</span>
+            <span>
+              {whyLine(server, status).map((part, index) =>
+                part.bold ? (
+                  <strong key={index}>{part.text}</strong>
+                ) : (
+                  <span key={index}>{part.text}</span>
+                ),
+              )}
+            </span>
           </p>
         )}
       </section>
 
-      <section className="panel controls-panel" aria-label="Controls">
-        <UsersSlider position={position} onChange={moveSlider} />
-        <dl className="facts">
-          <div>
-            <dt>Each user sends</dt>
-            <dd>
-              <NumberTag entry={state.world.traffic.requestsPerUserPerSec}>
-                {state.world.traffic.requestsPerUserPerSec.value} req/s
-              </NumberTag>
-            </dd>
-          </div>
-          {server && (
-            <div>
-              <dt>Server can finish</dt>
-              <dd>
-                <NumberTag entry={server.capacity}>{server.capacity.value} req/s</NumberTag>
-              </dd>
-            </div>
-          )}
-          {server && (
-            <div>
-              <dt>Waiting line holds</dt>
-              <dd>
-                <NumberTag entry={server.queueMax}>{server.queueMax.value} requests</NumberTag>
-              </dd>
-            </div>
-          )}
-        </dl>
-        <SimControls sim={sim} snapshot={snapshot} onReset={reset} />
-      </section>
+      {server && (
+        <p className="facts muted">
+          Each user sends{' '}
+          <NumberTag entry={state.world.traffic.requestsPerUserPerSec}>
+            {state.world.traffic.requestsPerUserPerSec.value} req/s
+          </NumberTag>
+          . The server finishes{' '}
+          <NumberTag entry={server.capacity}>{server.capacity.value} req/s</NumberTag>. Its waiting
+          line holds <NumberTag entry={server.queueMax}>{server.queueMax.value}</NumberTag>{' '}
+          requests.
+        </p>
+      )}
     </article>
   );
 }

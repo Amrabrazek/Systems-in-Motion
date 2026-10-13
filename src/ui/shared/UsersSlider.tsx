@@ -16,9 +16,7 @@ export function UsersSlider({
   const users = positionToValue(usersScale, position).toLocaleString('en-US');
   return (
     <div className="users-slider">
-      <label htmlFor={id}>
-        Users <span className="number-value">{users}</span>
-      </label>
+      <label htmlFor={id}>Users</label>
       <input
         id={id}
         type="range"
@@ -28,12 +26,9 @@ export function UsersSlider({
         aria-valuetext={`${users} users`}
         onChange={(event) => onChange(Number(event.target.value))}
       />
-      <div className="users-slider-ends muted" aria-hidden="true">
-        <span>10</span>
-        <span>100</span>
-        <span>1,000</span>
-        <span>10,000</span>
-      </div>
+      <output htmlFor={id} className="number-value">
+        {users}
+      </output>
     </div>
   );
 }
