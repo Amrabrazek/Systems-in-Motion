@@ -1,47 +1,108 @@
 import type { ReactNode } from 'react';
-import type { NodeStatus, SimState, UsersNode, WorkNode } from '../../engine';
-import { healthText } from './health';
+import type {
+  LoadBalancerNode,
+  NodeStatus,
+  SimNode,
+  SimState,
+  UsersNode,
+  WorkNode,
+} from '../../engine';
+import { boxLook, lookText } from './health';
+import { stageLayout, type BoxPlace, type StageLayout } from './layout';
 import { peopleShown, slotsFilled, STAGE } from './stageMath';
 import './flow.css';
 
 const format = (value: number) => Math.round(value).toLocaleString('en-US');
+const COUNT_WORDS = ['NO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE'];
 
 /**
- * The M1 Flow stage: users ──▶ waiting line ──▶ one box. Plain SVG (ADR 0006). `dots` is drawn
- * between the lines and the box, so dots slide under the box as they are served.
+ * The Flow stage: users ──▶ any boxes, laid out from the world graph (ADR 0012). Plain SVG
+ * (ADR 0006). `dots` is drawn between the waiting lines and the boxes, so dots slide under a
+ * box as they are served.
  */
 export function FlowStage({ state, dots }: { state: SimState; dots?: ReactNode }) {
-  const users = state.world.nodes.find((node): node is UsersNode => node.kind === 'users');
-  const server = state.world.nodes.find((node): node is WorkNode => node.kind === 'server');
-  const status = server ? state.nodes[server.id] : undefined;
-  if (!users || !server || !status) return null;
+  const { world } = state;
+  const users = world.nodes.find((node): node is UsersNode => node.kind === 'users');
+  if (!users) return null;
+  const layout = stageLayout(world);
+  const byId = new Map<string, SimNode>(world.nodes.map((node) => [node.id, node]));
+  const servers = world.nodes.filter((node): node is WorkNode => node.kind === 'server');
 
-  const { traffic } = state.world;
-  const { middle, queue, box } = STAGE;
   return (
     <svg
       className="flow-stage"
-      viewBox={`0 0 ${STAGE.width} ${STAGE.height}`}
+      viewBox={`0 0 ${layout.width} ${layout.height}`}
       role="img"
-      aria-label={`${format(traffic.users)} users send requests to the ${server.label.toLowerCase()}. It is ${healthText(status.health).slice(2).toLowerCase()}.`}
+      aria-label={describe(state, servers)}
     >
       <UsersGroup
-        count={traffic.users}
-        requestsPerSecond={traffic.users * traffic.requestsPerUserPerSec.value}
+        middle={layout.middle}
+        count={world.traffic.users}
+        requestsPerSecond={world.traffic.users * world.traffic.requestsPerUserPerSec.value}
       />
-      <line className="flow-edge" x1={STAGE.usersRight} y1={middle} x2={queue.start} y2={middle} />
-      <line className="flow-track" x1={queue.start} y1={middle} x2={box.x - 8} y2={middle} />
-      <WaitingLine status={status} queueMax={server.queueMax.value} />
+      {world.edges.map((edge) => {
+        const path = layout.edges[edge.id];
+        if (!path) return null;
+        const [[x1, y1], [x2, y2]] = [path.from, path.to];
+        return <line key={edge.id} className="flow-edge" x1={x1} y1={y1} x2={x2} y2={y2} />;
+      })}
+      {servers.map((node) => {
+        const place = layout.boxes[node.id];
+        const status = state.nodes[node.id];
+        if (!place || !status) return null;
+        return <WaitingLine key={node.id} place={place} status={status} node={node} />;
+      })}
       {dots}
-      <ServerBox node={server} status={status} />
+      {Object.values(layout.boxes).map((place) => {
+        const node = byId.get(place.id);
+        const status = state.nodes[place.id];
+        if (!node || !status) return null;
+        if (node.kind === 'loadBalancer') {
+          return <RouterBox key={node.id} node={node} place={place} state={state} />;
+        }
+        if (node.kind === 'server') {
+          return <ServerBox key={node.id} node={node} place={place} status={status} />;
+        }
+        return null;
+      })}
+      <ColumnCaptions layout={layout} byId={byId} />
     </svg>
   );
 }
 
-function UsersGroup({ count, requestsPerSecond }: { count: number; requestsPerSecond: number }) {
+function describe(state: SimState, servers: WorkNode[]): string {
+  const users = `${format(state.world.traffic.users)} users send requests to`;
+  if (servers.length === 1) {
+    const [server] = servers;
+    const status = server && state.nodes[server.id];
+    if (!server || !status) return users;
+    const look = lookText(boxLook(server, status)).slice(2).toLowerCase();
+    return `${users} the ${server.label.toLowerCase()}. It is ${look}.`;
+  }
+  const each = servers
+    .map((node) => {
+      const status = state.nodes[node.id];
+      return status
+        ? `${node.label} ${lookText(boxLook(node, status)).slice(2).toLowerCase()}`
+        : '';
+    })
+    .filter(Boolean)
+    .join(', ');
+  return `${users} ${servers.length} servers. ${each}.`;
+}
+
+function UsersGroup({
+  middle,
+  count,
+  requestsPerSecond,
+}: {
+  middle: number;
+  count: number;
+  requestsPerSecond: number;
+}) {
   const { columns, rows, gap, x, radius } = STAGE.people;
   const lit = peopleShown(count);
-  const top = STAGE.middle - ((rows - 1) * gap) / 2;
+  const top = middle - ((rows - 1) * gap) / 2;
   const centerX = x + ((columns - 1) * gap) / 2;
   return (
     <g className="flow-users">
@@ -67,27 +128,36 @@ function UsersGroup({ count, requestsPerSecond }: { count: number; requestsPerSe
   );
 }
 
-function WaitingLine({ status, queueMax }: { status: NodeStatus; queueMax: number }) {
-  const { slots, size, gap } = STAGE.queue;
-  const filled = slotsFilled(status.queueLength, queueMax);
-  const full = filled === slots;
-  const end = STAGE.box.x - 8;
+function WaitingLine({
+  place,
+  status,
+  node,
+}: {
+  place: BoxPlace;
+  status: NodeStatus;
+  node: WorkNode;
+}) {
+  const { size, gap } = STAGE.queue;
+  const filled = slotsFilled(status.queueLength, node.queueMax.value);
+  const full = filled === STAGE.queue.slots;
+  const [end, y] = place.door;
   return (
     <g className="flow-queue">
+      <line className="flow-track" x1={place.entry[0]} y1={y} x2={end} y2={y} />
       {Array.from({ length: filled }, (_, index) => (
         // Fills from the box outward: the slot touching the box is first in line.
         <rect
           key={index}
           className={full ? 'slot slot--full' : 'slot'}
           x={end - (index + 1) * gap}
-          y={STAGE.middle - size / 2}
+          y={y - size / 2}
           width={size}
           height={size}
           rx={1.5}
         />
       ))}
       {status.queueLength > 0 && (
-        <text className="flow-label" x={end} y={STAGE.middle + 24} textAnchor="end">
+        <text className="flow-label" x={end} y={y + 24} textAnchor="end">
           {format(status.queueLength)} waiting
         </text>
       )}
@@ -95,40 +165,121 @@ function WaitingLine({ status, queueMax }: { status: NodeStatus; queueMax: numbe
   );
 }
 
-function ServerBox({ node, status }: { node: WorkNode; status: NodeStatus }) {
-  const { x, width, height } = STAGE.box;
-  const top = STAGE.middle - height / 2;
+function ServerBox({
+  node,
+  place,
+  status,
+}: {
+  node: WorkNode;
+  place: BoxPlace;
+  status: NodeStatus;
+}) {
+  const { x, top, width, height, compact } = place;
+  const look = boxLook(node, status);
   const inner = x + 12;
   const barWidth = width - 24;
+  const line = compact ? { name: 22, state: 42, bar: 52 } : { name: 24, state: 48, bar: 60 };
   return (
-    <g className={`flow-box flow-box--${status.health}`}>
+    <g className={`flow-box flow-box--${look}`}>
       <rect className="flow-box-frame" x={x} y={top} width={width} height={height} rx={10} />
-      <text className="flow-box-name" x={inner} y={top + 24}>
+      <text className="flow-box-name" x={inner} y={top + line.name}>
         {node.label}
       </text>
       {node.awsTag && (
-        <text className="flow-box-aws" x={x + width - 10} y={top + 24} textAnchor="end">
+        <text className="flow-box-aws" x={x + width - 10} y={top + line.name} textAnchor="end">
           {node.awsTag}
         </text>
       )}
-      <text className="flow-box-state" x={inner} y={top + 48}>
-        {healthText(status.health)} · {Math.round(status.utilization * 100)}%
+      <text className="flow-box-state" x={inner} y={top + line.state}>
+        {look === 'down'
+          ? lookText(look)
+          : `${lookText(look)} · ${Math.round(status.utilization * 100)}%`}
       </text>
-      <rect className="flow-box-bar" x={inner} y={top + 60} width={barWidth} height={6} rx={3} />
-      <rect
-        className="flow-box-bar-fill"
-        x={inner}
-        y={top + 60}
-        width={barWidth * Math.min(status.utilization, 1)}
-        height={6}
-        rx={3}
-      />
-      <text className="flow-box-note" x={inner} y={top + 88}>
-        handles ~{format(node.capacity.value)} requests/s
+      {look !== 'down' && (
+        <>
+          <rect
+            className="flow-box-bar"
+            x={inner}
+            y={top + line.bar}
+            width={barWidth}
+            height={6}
+            rx={3}
+          />
+          <rect
+            className="flow-box-bar-fill"
+            x={inner}
+            y={top + line.bar}
+            width={barWidth * Math.min(status.utilization, 1)}
+            height={6}
+            rx={3}
+          />
+        </>
+      )}
+      {!compact && (
+        <text className="flow-box-note" x={inner} y={top + 88}>
+          {look === 'down'
+            ? 'turns every request away'
+            : `handles ~${format(node.capacity.value)} requests/s`}
+        </text>
+      )}
+    </g>
+  );
+}
+
+/** A router has no capacity or line (ADR 0011). It shows how many servers it still sends to. */
+function RouterBox({
+  node,
+  place,
+  state,
+}: {
+  node: LoadBalancerNode;
+  place: BoxPlace;
+  state: SimState;
+}) {
+  const { x, top, width, height } = place;
+  const targets = state.world.edges.filter((edge) => edge.from === node.id);
+  const sending = targets.filter((edge) => (state.edges[edge.id]?.rate ?? 0) > 0).length;
+  const inner = x + 10;
+  return (
+    <g className="flow-box flow-box--router">
+      <rect className="flow-box-frame" x={x} y={top} width={width} height={height} rx={10} />
+      <text className="flow-box-name flow-box-name--small" x={inner} y={top + 22}>
+        {node.label}
       </text>
-      <text className="flow-caption" x={x + width / 2} y={top + height + 28} textAnchor="middle">
-        ONE SERVER
+      {node.awsTag && (
+        <text className="flow-box-aws" x={inner} y={top + 40}>
+          {node.awsTag}
+        </text>
+      )}
+      <text className="flow-box-note" x={inner} y={top + 60}>
+        sends to {sending} of {targets.length}
       </text>
     </g>
+  );
+}
+
+/** "ONE SERVER", "3 SERVERS": under each column of servers, like the M1 picture. */
+function ColumnCaptions({ layout, byId }: { layout: StageLayout; byId: Map<string, SimNode> }) {
+  return (
+    <>
+      {layout.columns.map((ids, index) => {
+        if (!ids.every((id) => byId.get(id)?.kind === 'server')) return null;
+        const places = ids.map((id) => layout.boxes[id]).filter((place) => place !== undefined);
+        const last = places[places.length - 1];
+        if (!last) return null;
+        const count = COUNT_WORDS[ids.length] ?? String(ids.length);
+        return (
+          <text
+            key={index}
+            className="flow-caption"
+            x={last.x + last.width / 2}
+            y={last.top + last.height + 28}
+            textAnchor="middle"
+          >
+            {count} {ids.length === 1 ? 'SERVER' : 'SERVERS'}
+          </text>
+        );
+      })}
+    </>
   );
 }

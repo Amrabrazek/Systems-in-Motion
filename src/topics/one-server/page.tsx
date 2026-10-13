@@ -4,8 +4,8 @@ import { getNumber } from '../../data/numbers';
 import { DotLayer } from '../../kits/flow/DotLayer';
 import { requestsPerDot } from '../../kits/flow/dots';
 import { FlowStage } from '../../kits/flow/FlowStage';
-import { healthText } from '../../kits/flow/health';
-import { whyLine } from '../../kits/flow/why';
+import { lookText } from '../../kits/flow/health';
+import { whyForState } from '../../kits/flow/why';
 import { browserClock, createSim, useSim } from '../../sim';
 import { LiveChart } from '../../ui/shared/LiveChart';
 import { positionToValue, usersScale, valueToPosition } from '../../ui/shared/logScale';
@@ -34,7 +34,7 @@ export default function OneServerPage() {
 
   const { state } = snapshot;
   const server = state.world.nodes.find((node): node is WorkNode => node.kind === 'server');
-  const status = server ? state.nodes[server.id] : undefined;
+  const why = whyForState(state);
 
   function moveSlider(next: number) {
     setPosition(next);
@@ -62,11 +62,11 @@ export default function OneServerPage() {
           <UsersSlider position={position} onChange={moveSlider} />
           <SimControls sim={sim} snapshot={snapshot} onReset={reset} />
         </div>
-        {server && status && (
+        {why && (
           <p className="panel-row why" aria-live="polite">
-            <span className={`pill pill--${status.health}`}>{healthText(status.health)}</span>
+            <span className={`pill pill--${why.look}`}>{lookText(why.look)}</span>
             <span>
-              {whyLine(server, status).map((part, index) =>
+              {why.parts.map((part, index) =>
                 part.bold ? (
                   <strong key={index}>{part.text}</strong>
                 ) : (
