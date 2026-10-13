@@ -9,7 +9,8 @@
 | [design-mode.md](design-mode.md) | The engineer door: what's in v1 and what waits |
 | [design-system.md](design-system.md) | The UI look: tokens, health states, core parts |
 | [roadmap.md](roadmap.md) | All topics, which kit each needs, what can be built in parallel |
-| [milestones/m1-one-box-breaks.md](milestones/m1-one-box-breaks.md) | The first build, step by step |
+| [milestones/m1-one-box-breaks.md](milestones/m1-one-box-breaks.md) | The first build, step by step (done) |
+| [milestones/m2-load-balancer-kill.md](milestones/m2-load-balancer-kill.md) | Load balancer + kill a server, step by step |
 | [decisions/](decisions/) | One short file per big decision (ADR) |
 
 Number tags used everywhere: **M** Measured · **R** Rule of thumb · **T** Teaching guess.

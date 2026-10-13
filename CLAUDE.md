@@ -51,7 +51,7 @@ src/parts/    deep-dive pages (markdown). Routes + full tree: docs/navigation.md
   "at 2× capacity, error rate > 0", "below 70% utilization, queue stays 0".
 - Same seed + same actions ⇒ same result. Keep tests deterministic; no timers.
 - UI: test logic that has branches (selectors, level step machine). Skip snapshot tests.
-- One Playwright smoke test per milestone, run in CI (M1: page loads, raise users, server turns red).
+- One Playwright smoke test per milestone, run in CI (M1: page loads, raise users, server turns red; M2: kill a server, survivor turns red).
   Engine tests can't catch a blank page.
 
 ## Content rules
@@ -74,9 +74,9 @@ src/parts/    deep-dive pages (markdown). Routes + full tree: docs/navigation.md
 - No new dependency without saying why in the PR.
 - Comments explain *why*, not *what*.
 
-## Current milestone: M1 "One box breaks"
-Plan: [`docs/milestones/m1-one-box-breaks.md`](docs/milestones/m1-one-box-breaks.md).
-Out of scope for M1: load balancer, levels, Play mode, deep dives, kill buttons, React Flow.
+## Current milestone: M2 "Load balancer + kill a server"
+Plan: [`docs/milestones/m2-load-balancer-kill.md`](docs/milestones/m2-load-balancer-kill.md). M1 is done.
+Out of scope for M2: kill AZ, LB algorithms, LB capacity, retries, autoscaling, Play mode, Design mode, React Flow.
 
 ## How to work here
 - Start every milestone in **plan mode**; agree steps before code.
