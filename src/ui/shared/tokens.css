@@ -1,28 +1,35 @@
 /*
  * Design tokens: the only place colors, type and spacing are defined.
- * Neutral placeholders until a look is picked (thread "UI design system options").
- * Swapping the look should mean editing this file only.
+ * Look: "Lab bench" (docs/design-system.md). Swapping the look should mean editing this file only.
  */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
-  --color-bg: #ffffff;
-  --color-surface: #f5f5f5;
-  --color-border: #d4d4d4;
-  --color-text: #1a1a1a;
-  --color-text-muted: #5c5c5c;
-  --color-accent: #2f5fd0;
+  --color-bg: #eef1f5;
+  --color-surface: #ffffff;
+  --color-surface-soft: #e6eaf0;
+  --color-border: #d4dae3;
+  --color-text: #16202c;
+  --color-text-muted: #5b6778;
+  --color-accent: #2f5bd3;
+  --color-on-accent: #ffffff;
 
-  /* Health colors used by every box (docs/engine.md). */
-  --color-ok: #2e8540;
-  --color-warn: #c68a00;
-  --color-bad: #c62828;
+  /* Health colors used by every box (docs/engine.md). Text versions pass WCAG AA on their -bg. */
+  --color-ok: #13793f;
+  --color-ok-bg: #e1f3e8;
+  --color-warn: #8a5d00;
+  --color-warn-bg: #fbefcf;
+  --color-bad: #b3261a;
+  --color-bad-bg: #fbe0dc;
 
-  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --font-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
-  --font-size-lg: 1.5rem;
+  --font-size-lg: 1.375rem;
+  --font-size-xl: 2rem;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -30,16 +37,37 @@
   --space-4: 24px;
   --space-5: 40px;
 
-  --radius: 6px;
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-pill: 999px;
+
+  /* The tradeoff card's hard shadow: "every fix has a price" should feel like a physical card. */
+  --shadow-card: 3px 3px 0 var(--color-text);
+  /* Request dots glow only in dark mode, where traffic should pop. */
+  --dot-glow: none;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-bg: #161616;
-    --color-surface: #222222;
-    --color-border: #3a3a3a;
-    --color-text: #ededed;
-    --color-text-muted: #a3a3a3;
-    --color-accent: #7aa2ff;
+    color-scheme: dark;
+
+    --color-bg: #0e131a;
+    --color-surface: #161d27;
+    --color-surface-soft: #1e2733;
+    --color-border: #2a3443;
+    --color-text: #e5eaf1;
+    --color-text-muted: #95a1b3;
+    --color-accent: #86a2ff;
+    --color-on-accent: #0e131a;
+
+    --color-ok: #41c97e;
+    --color-ok-bg: #123020;
+    --color-warn: #f0b52f;
+    --color-warn-bg: #3a2d0c;
+    --color-bad: #ff6e60;
+    --color-bad-bg: #3d1713;
+
+    --shadow-card: 3px 3px 0 #05080c;
+    --dot-glow: drop-shadow(0 0 3px var(--color-accent));
   }
 }
