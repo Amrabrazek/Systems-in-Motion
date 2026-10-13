@@ -46,7 +46,7 @@ sequenceDiagram
 - **Two render speeds.** The stage redraws every frame without React. React panels
   (charts, "why" line, lesson) re-render ~10 times a second. (ADR 0005)
 
-## Data model (sketch, M1 fields in bold)
+## Data model (sketch; the real types are in `src/engine/types.ts`)
 
 ```ts
 type Tag = 'M' | 'R' | 'T' | 'U';   // U = the user's own number (Design)
@@ -68,7 +68,7 @@ interface World {                 // what a level or sandbox starts from
   nodes: SimNode[]; edges: SimEdge[];
   traffic: { users: number; requestsPerUserPerSec: Tagged<number> };
   seed: number;
-  numbers: 'teaching' | 'typical' | 'measured';  // which profile, plus user overrides
+  rules: ModelRules;              // busy-at 70%, queue-bad fraction, … also tagged numbers
 }
 
 interface NodeStatus {            // computed each step
@@ -92,6 +92,12 @@ type Action =
 
 Why actions instead of setters: levels, tests, replays and (later) shareable links all become
 "a world + a list of actions". (ADR 0005)
+
+**Numbers reach the engine inside the World.** Whoever builds a world (a topic, Design mode)
+picks entries from a profile in `src/data/numbers/` and puts the whole entry on the node. The
+engine never imports `data/`, so Design can swap in the user's own numbers (tag U) with no
+engine change. In code, `Tagged<number>` is `NumberEntry`, and `SimNode` is a union: a
+`users` node has no capacity or queue.
 
 ## Folder layout
 
