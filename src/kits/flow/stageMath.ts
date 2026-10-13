@@ -1,13 +1,19 @@
-// Geometry of the one-box Flow stage, in SVG units (the viewBox scales it). Shared with the
-// DotLayer in step 5 so dots follow the same paths the stage draws.
+// Sizes of the Flow stage parts, in SVG units (the viewBox scales them). Where each part goes
+// is worked out from the world graph by layout.ts (ADR 0012).
 export const STAGE = {
-  width: 760,
-  height: 290,
-  middle: 135,
+  minWidth: 760,
+  minHeight: 290,
+  baseMiddle: 135, // the M1 centre line: the users group and a single box sit on it
+  rightMargin: 40,
+  bottomMargin: 50, // room for the column caption under the lowest box
+  topMargin: 30,
   people: { columns: 5, rows: 8, gap: 20, x: 50, radius: 5.5 },
   usersRight: 150, // where requests leave the users group
-  queue: { start: 330, slots: 24, size: 7, gap: 9 },
-  box: { x: 560, width: 160, height: 104 },
+  queue: { slots: 24, size: 7, gap: 9, track: 222 }, // track: line start → box door
+  doorGap: 8, // the waiting line stops this far before the box
+  box: { width: 160, height: 104, compactHeight: 72, gap: 24 },
+  router: { width: 124, height: 72 },
+  edge: { min: 40, fan: 80 }, // shortest edge; longer when it fans out to several boxes
 } as const;
 
 export const QUEUE_SLOTS = STAGE.queue.slots;

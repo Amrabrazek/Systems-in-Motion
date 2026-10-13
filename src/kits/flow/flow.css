@@ -107,6 +107,36 @@
   fill: var(--color-bad);
 }
 
+/* Killed box (design system part 1): dashed line, no fill. The word, not the color, says it. */
+.flow-box--down .flow-box-frame {
+  stroke: var(--color-border);
+  stroke-dasharray: 6 5;
+  fill: none;
+}
+.flow-box--down .flow-box-state {
+  fill: var(--color-text-muted);
+}
+.flow-box--down .flow-box-name {
+  fill: var(--color-text-muted);
+}
+
+/* A router (load balancer) does no work, so it has no health color of its own. */
+.flow-box--router .flow-box-frame {
+  stroke: var(--color-text-muted);
+  fill: var(--color-surface);
+}
+
+.flow-box-name--small {
+  font-size: var(--font-size-sm);
+}
+
+/* The why-line pill for a killed box; the health pills live in ui/shared/base.css. */
+.pill--down {
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  outline: 1px dashed var(--color-border);
+}
+
 @keyframes flow-overload-pulse {
   to {
     opacity: 0.55;

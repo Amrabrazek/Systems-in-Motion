@@ -1,7 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import type { NodeStatus, NumberEntry, WorkNode } from '../../engine';
-import { healthText } from './health';
-import { whyLine, whyText } from './why';
+import { getNumber } from '../../data/numbers';
+import {
+  createState,
+  step,
+  type Action,
+  type NodeStatus,
+  type NumberEntry,
+  type SimState,
+  type WorkNode,
+  type World,
+} from '../../engine';
+import { healthText, lookText } from './health';
+import { whyForState, whyLine, whyText } from './why';
+import { balanced, oneServer } from './worlds.fixture';
+
+const DT = 0.05;
 
 const entry = (value: number): NumberEntry => ({ id: 'x', value, unit: '', tag: 'T', note: '' });
 const server: WorkNode = {
@@ -89,5 +102,71 @@ describe('health text', () => {
     expect(healthText('ok')).toBe('✓ HEALTHY');
     expect(healthText('warn')).toBe('~ BUSY');
     expect(healthText('bad')).toBe('! OVERLOADED');
+  });
+});
+
+describe('why line for a whole stage', () => {
+  const run = (world: World, seconds: number, actions: Action[] = []) => {
+    let state: SimState = step(createState(world), actions, DT);
+    for (let i = 1; i < seconds / DT; i++) state = step(state, [], DT);
+    return state;
+  };
+  const kill = (id: string): Action[] => [{ type: 'killNode', nodeId: id }];
+  const healthCheck = getNumber('teaching', 'lb.healthCheckSeconds').value;
+
+  it('one server reads exactly like M1', () => {
+    const state = run(oneServer(100), 2);
+    const server = state.world.nodes.find((node): node is WorkNode => node.kind === 'server');
+    const status = state.nodes.server;
+    if (!server || !status) throw new Error('no server');
+    expect(whyForState(state)?.parts).toEqual(whyLine(server, status));
+  });
+
+  it('names the busiest of several healthy servers by its label', () => {
+    const why = whyForState(run(balanced(2, 600), 5));
+    expect(whyText(why?.parts ?? [])).toMatch(/^Server [AB] is \d+% busy/);
+    expect(why?.look).toBe('ok');
+  });
+
+  it('a killed server the LB still believes in: says so and how often', () => {
+    const why = whyForState(run(balanced(2, 600), healthCheck / 2, kill('b')));
+    expect(whyText(why?.parts ?? [])).toBe(
+      "Server B is down. The load balancer hasn't noticed yet, so 1 in 2 requests still go there and are turned away.",
+    );
+    expect(why?.look).toBe('down');
+  });
+
+  it('after the LB notices: names the dead box, then how the survivor copes', () => {
+    // 1,000 users on 2 servers: the survivor alone is at 125%.
+    const why = whyForState(run(balanced(2, 1000), healthCheck + 6, kill('b')));
+    const text = whyText(why?.parts ?? []);
+    expect(text).toMatch(/^Server B is down\. Server A is 125% busy/);
+    expect(why?.look).toBe('bad');
+  });
+
+  it('N+1: a dead box with healthy survivors shows as down, not overloaded', () => {
+    const why = whyForState(run(balanced(3, 1000), healthCheck + 6, kill('c')));
+    expect(whyText(why?.parts ?? [])).toMatch(/^Server C is down\. Server [AB] is 6\d% busy/);
+    expect(why?.look).toBe('down');
+  });
+
+  it('every server down: one plain sentence', () => {
+    const state = run(balanced(2, 600), 1, [...kill('a'), ...kill('b')]);
+    expect(whyText(whyForState(state)?.parts ?? [])).toBe(
+      'Every server is down. Every request is turned away.',
+    );
+  });
+
+  it('a stage with no servers has nothing to explain', () => {
+    const world = oneServer(100);
+    const usersOnly = { ...world, nodes: world.nodes.slice(0, 1), edges: [] };
+    expect(whyForState(createState(usersOnly))).toBeUndefined();
+  });
+});
+
+describe('box look', () => {
+  it('a killed box reads as down, with a symbol', () => {
+    expect(lookText('down')).toBe('✕ DOWN');
+    expect(lookText('warn')).toBe('~ BUSY');
   });
 });

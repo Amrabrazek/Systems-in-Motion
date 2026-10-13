@@ -90,7 +90,9 @@ The parts every topic reuses. Build them once in `src/ui/shared/` or the Flow ki
 - Inside: name (body, 600), AWS tag top-right (mono, xs, muted), then `symbol STATE · busy %` (mono, health color),
   then a busy bar filled in the health color.
 - Overloaded boxes pulse gently (opacity 1 → 0.55, ~1s). No pulse with reduced motion.
-- A killed box (M2+): `--color-border` line, dashed, no fill, label "Down".
+- A killed box (M2+): `--color-border` line, dashed, no fill, label `✕ DOWN`, no busy bar. Its why-line pill is `.pill--down` (muted text, dashed outline).
+- A router box (load balancer): `--color-text-muted` line, `--color-surface` fill, no health color or bar (it does no work, ADR 0011). Shows "sends to N of M".
+- Placement comes from the graph, one column per hop (ADR 0012). Three or more boxes in a column go compact (no note line).
 
 ### 2. Request dot
 - Circle, r = 4, `--color-accent`, `filter: var(--dot-glow)`.
