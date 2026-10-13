@@ -89,6 +89,12 @@ export interface World {
 
 export type Health = 'ok' | 'warn' | 'bad';
 
+/**
+ * Would the system survive losing one more server? 'tight' = the rest hold but run busy
+ * (past `rules.busyAt`), so latency climbs.
+ */
+export type SpareLevel = 'yes' | 'tight' | 'no';
+
 /** Computed each step for every server and load balancer. Rates are requests/s. */
 export interface NodeStatus {
   incoming: number;

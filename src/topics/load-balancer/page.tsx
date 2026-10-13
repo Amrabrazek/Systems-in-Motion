@@ -6,6 +6,7 @@ import { lookText } from '../../kits/flow/health';
 import { whyForState } from '../../kits/flow/why';
 import { browserClock, createSim, useSim } from '../../sim';
 import { LiveChart } from '../../ui/shared/LiveChart';
+import { meters } from '../../ui/shared/meters';
 import { positionToValue, usersScale, valueToPosition } from '../../ui/shared/logScale';
 import { NumberTag } from '../../ui/shared/NumberTag';
 import { SimControls } from '../../ui/shared/SimControls';
@@ -197,6 +198,7 @@ export default function LoadBalancerPage() {
           name="Load balancer + second server"
           awsTag="ELB"
           card={addLoadBalancerCard}
+          meters={meters(state.world)}
         />
       </section>
     </article>
