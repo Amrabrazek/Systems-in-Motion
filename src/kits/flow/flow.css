@@ -1,0 +1,108 @@
+/* Flow kit stage. Values come from tokens only (docs/design-system.md). */
+.flow-stage {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: var(--font-body);
+}
+
+.flow-label {
+  fill: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+}
+
+.person {
+  fill: var(--color-border);
+}
+
+.person--lit {
+  fill: var(--color-accent);
+}
+
+.flow-edge {
+  stroke: var(--color-border);
+  stroke-width: 2;
+}
+
+.slot {
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.slot--waiting {
+  fill: var(--color-warn);
+  stroke: var(--color-warn);
+}
+
+.slot--full {
+  fill: var(--color-bad);
+  stroke: var(--color-bad);
+}
+
+.flow-box-frame {
+  stroke-width: 2;
+}
+
+.flow-box-name {
+  fill: var(--color-text);
+  font-weight: 600;
+  font-size: var(--font-size-md);
+}
+
+.flow-box-aws {
+  fill: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+}
+
+.flow-box-state {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.flow-box-bar {
+  fill: var(--color-surface-soft);
+}
+
+.flow-box--ok .flow-box-frame {
+  stroke: var(--color-ok);
+  fill: var(--color-ok-bg);
+}
+.flow-box--ok .flow-box-state,
+.flow-box--ok .flow-box-bar-fill {
+  fill: var(--color-ok);
+}
+
+.flow-box--warn .flow-box-frame {
+  stroke: var(--color-warn);
+  fill: var(--color-warn-bg);
+}
+.flow-box--warn .flow-box-state,
+.flow-box--warn .flow-box-bar-fill {
+  fill: var(--color-warn);
+}
+
+.flow-box--bad .flow-box-frame {
+  stroke: var(--color-bad);
+  fill: var(--color-bad-bg);
+  animation: flow-overload-pulse 1s ease-in-out infinite alternate;
+}
+.flow-box--bad .flow-box-state,
+.flow-box--bad .flow-box-bar-fill {
+  fill: var(--color-bad);
+}
+
+@keyframes flow-overload-pulse {
+  to {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-box--bad .flow-box-frame {
+    animation: none;
+  }
+}
