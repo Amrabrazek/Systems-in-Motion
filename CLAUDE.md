@@ -34,7 +34,7 @@ src/kits/     shared visual kits (Flow, Data layout, Time & copies, Algorithm).
 src/topics/<id>/  one page per topic: level/lab data, page, content, tests.
 src/design/    Design mode (builder, params, breaking point, share link).
 src/data/numbers/  every number, tagged, by profile (teaching / typical / measured).
-src/parts/    deep-dive pages (markdown). Routes + full tree: docs/navigation.md
+src/parts/    explainer pages (ADR 0013). Routes + full tree: docs/navigation.md
 ```
 - `src/engine` must not import from `ui`, `sim`, `react`, or touch `window`/`document`. Lint enforces it.
 - Engine is **flow math** (rates, queues, utilization per box), not one object per request.
