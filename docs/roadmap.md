@@ -28,7 +28,7 @@ Parallel:  4 kit lanes run side by side; inside a lane, most topics run side by 
 ## Topic list
 
 Page types: **Level** = Play mode (predict → break → fix), **Lab** = A vs B comparison,
-**Deep dive** = reading page for one part.
+**Explainer** = explain simply, interactive only where it helps ([ADR 0013](decisions/0013-explainer-page-type.md)).
 
 | # | Topic | Page | Kit | Engine/kit feature it adds | Can start after |
 |---|---|---|---|---|---|
@@ -51,7 +51,7 @@ Page types: **Level** = Play mode (predict → break → fix), **Lab** = A vs B 
 | 17 | Rate limiting | Lab | Algorithm | builds the kit | Foundation |
 | 18 | Cache eviction (LRU vs LFU) | Lab | Algorithm | eviction policies | 17 |
 | 19 | LB algorithms | Lab | Algorithm (+ Flow) | per-server speed | 2, 17 |
-| 20 | Outside services, Cost | Deep dive | none | none | anytime |
+| 20 | Outside services, Cost | Explainer | none | none | anytime |
 | D | Design mode | Tool | Flow | headless sweep, `users(t)`, URL encoding | 2 |
 
 ## v1: the smallest version that serves both audiences
@@ -66,7 +66,7 @@ Design  chain builder · parameters with tags · traffic scripts · kill server/
 |---|---|
 | ➕ Design mode (about 4 PRs) | the engineer door (ADR 0010) |
 | ➖ Sandbox | Design replaces it |
-| ➖ Deep dive per part → v1.5 | pays for Design. v1 keeps a one-line definition + glossary per part |
+| ➖ Explainer per part → v1.5 | pays for Design. v1 keeps a one-line definition + glossary per part |
 | ➖ Compare mode → v1.5 | breaking point + share link cover most of it |
 
 ⚠️ Net: v1 is still bigger than before. Design is the part to cut further if v1 drags.
@@ -97,3 +97,8 @@ src/kits/<kit>/   src/engine/   src/ui/shared/        ✗ never another topic
 4. **One topic = one branch = one thread/session.**
 
 See [ADR 0007](decisions/0007-topics-as-isolated-pages.md) for why.
+
+## After this list
+
+Locked ideas waiting their turn (caching strategies, resilience pack for v1.5, event-driven,
+data patterns, "How systems scale" explainer) and parked ones (SOLID, RAG): [topic-backlog.md](topic-backlog.md).

@@ -19,7 +19,7 @@ src/
     one-server/      page.tsx · level.ts · content.md · level.test.ts
     load-balancer/
     sql-vs-nosql/    page.tsx · lab.ts · content.md · lab.test.ts
-  parts/             deep dives: server.md, load-balancer.md, cache.md …
+  parts/             explainers: server.md, load-balancer.md, cache.md … (ADR 0013)
 ```
 
 Split by **topic** for content, by **layer** for shared code. Topics may import `engine`,
@@ -37,14 +37,14 @@ Split by **topic** for content, by **layer** for shared code. Topics may import 
                     │      │
      click a box ───┘      └─── "Next topic" ──▶ #/learn/load-balancer
                     ▼
-               #/parts/server   (deep dive, "Go deeper")
+               #/parts/server   (explainer, "Go deeper")
 ```
 
 | Route | Page | Built in |
 |---|---|---|
 | `#/` | Home: topic map | M1 (one card) |
 | `#/learn/:topicId` | Topic page (Level or Lab, from the registry) | M1 (one-server, no Play wrapper yet) |
-| `#/parts/:partId` | Deep dive for one part | v1.5 |
+| `#/parts/:partId` | Explainer for one part (route may change with the first explainer) | v1.5 |
 | `#/design` | Design mode; `?d=` holds a shared design | M4 |
 
 Every page shares one shell: top bar (Home · Learn · Design) and the M/R/T legend.
