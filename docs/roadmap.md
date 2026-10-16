@@ -1,5 +1,16 @@
 # Roadmap: topics as independent pages
 
+## Where we are (updated by every PR)
+
+```
+Done:  M1 one box breaks · M2 load balancer + kill · M3 predict → reveal · "How systems scale" explainer
+Next:  topic 3 Cache (plan first)
+Then:  M4 Design v0
+```
+
+Rule: every PR that finishes or starts something updates this block and the **Status** column below,
+so "what is next?" is answered by this file.
+
 Each topic is **one page** in its own folder. Topics never import each other, so several can be
 built at the same time. They are **not** fully independent though: they share the engine and a
 visual kit. That shared part is built first, then the work fans out.
@@ -30,29 +41,30 @@ Parallel:  4 kit lanes run side by side; inside a lane, most topics run side by 
 Page types: **Level** = Play mode (predict → break → fix), **Lab** = A vs B comparison,
 **Explainer** = explain simply, interactive only where it helps ([ADR 0013](decisions/0013-explainer-page-type.md)).
 
-| # | Topic | Page | Kit | Engine/kit feature it adds | Can start after |
-|---|---|---|---|---|---|
-| 1 | One server | Level | Flow | single box (M1) | Foundation |
-| 2 | Load balancer (+ kill server, kill AZ) | Level | Flow | multi-hop, split, `up` flag | 1 |
-| 3 | Cache | Level | Flow | hit-rate split | 2 |
-| 4 | Autoscaling | Level | Flow | capacity over time, boot lag | 2 |
-| 5 | Read replicas | Level | Flow | read/write split | 2 |
-| 6 | Queues & async jobs | Level | Flow | async node (user doesn't wait) | 2 |
-| 7 | CDN & files | Level | Flow | edge cache by region | 2 |
-| 8 | Failure & backups | Level | Flow | kill + restore with data loss | 2 |
-| 9 | Multi-region (+ global users, kill region) | Level | Flow | user groups, distance latency | 8 |
-| 10 | DR ladder (RTO/RPO) | Lab | Flow | recovery timeline | 9 |
-| 11 | SQL vs NoSQL | Lab | Data layout | builds the kit | Foundation |
-| 12 | Indexes | Lab | Data layout | rows-scanned counter | 11 |
-| 13 | Sharding & hot keys | Lab | Data layout | keys → shards | 11 |
-| 14 | Replication lag | Lab | Time & copies | builds the kit | Foundation |
-| 15 | Exact data (money, idempotency) | Lab | Time & copies | retries + duplicate detection | 14 |
-| 16 | Consistency & CAP | Lab | Time & copies | partitions | 14 |
-| 17 | Rate limiting | Lab | Algorithm | builds the kit | Foundation |
-| 18 | Cache eviction (LRU vs LFU) | Lab | Algorithm | eviction policies | 17 |
-| 19 | LB algorithms | Lab | Algorithm (+ Flow) | per-server speed | 2, 17 |
-| 20 | Outside services, Cost | Explainer | none | none | anytime |
-| D | Design mode | Tool | Flow | headless sweep, `users(t)`, URL encoding | 2 |
+| # | Topic | Page | Kit | Engine/kit feature it adds | Can start after | Status |
+|---|---|---|---|---|---|---|
+| 1 | One server | Level | Flow | single box (M1) | Foundation | ✅ done (M1, M3) |
+| 2 | Load balancer (+ kill server, kill AZ) | Level | Flow | multi-hop, split, `up` flag | 1 | ✅ done (M2) |
+| 3 | Cache | Level | Flow | hit-rate split | 2 | ⏭ next |
+| 4 | Autoscaling | Level | Flow | capacity over time, boot lag | 2 | |
+| 5 | Read replicas | Level | Flow | read/write split | 2 | |
+| 6 | Queues & async jobs | Level | Flow | async node (user doesn't wait) | 2 | |
+| 7 | CDN & files | Level | Flow | edge cache by region | 2 | |
+| 8 | Failure & backups | Level | Flow | kill + restore with data loss | 2 | |
+| 9 | Multi-region (+ global users, kill region) | Level | Flow | user groups, distance latency | 8 | |
+| 10 | DR ladder (RTO/RPO) | Lab | Flow | recovery timeline | 9 | |
+| 11 | SQL vs NoSQL | Lab | Data layout | builds the kit | Foundation | |
+| 12 | Indexes | Lab | Data layout | rows-scanned counter | 11 | |
+| 13 | Sharding & hot keys | Lab | Data layout | keys → shards | 11 | |
+| 14 | Replication lag | Lab | Time & copies | builds the kit | Foundation | |
+| 15 | Exact data (money, idempotency) | Lab | Time & copies | retries + duplicate detection | 14 | |
+| 16 | Consistency & CAP | Lab | Time & copies | partitions | 14 | |
+| 17 | Rate limiting | Lab | Algorithm | builds the kit | Foundation | |
+| 18 | Cache eviction (LRU vs LFU) | Lab | Algorithm | eviction policies | 17 | |
+| 19 | LB algorithms | Lab | Algorithm (+ Flow) | per-server speed | 2, 17 | |
+| 20 | Outside services, Cost | Explainer | none | none | anytime | |
+| E1 | How systems scale | Explainer | none (Stepper) | none | anytime | ✅ done |
+| D | Design mode | Tool | Flow | headless sweep, `users(t)`, URL encoding | 2 | |
 
 ## v1: the smallest version that serves both audiences
 
@@ -77,6 +89,7 @@ The rest of the topic list is the queue, not a promise.
 ```
 M1 One box breaks  ─▶ M2 Load balancer + kill ─▶ M3 Level 1 (Play) ─▶ M4 Design v0 ─▶ v1
    (shared engine)     (multi-hop, numbers data)                        (builder, breaking point, share)
+   ✅ done              ✅ done                     ✅ done (light)        ○ after Cache
 ```
 
 ## How parallel work stays safe
