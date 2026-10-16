@@ -10,7 +10,7 @@ Effort: **S** 1 PR, content only · **M** 2–3 PRs on an existing kit · **L** 
 | Rank | Idea | Page | Kit | Effort | When |
 |---|---|---|---|---|---|
 | 1 | "How systems scale" | Explainer hub | none (Stepper) | S | **built** at `#/learn/how-systems-scale` (first explainer, [ADR 0013](decisions/0013-explainer-page-type.md)) |
-| 2 | Caching strategies | Level + Lab | Flow + Algorithm | M | with topic 3 (Cache) |
+| 2 | Caching strategies | Level + Lab | Flow + Algorithm | M | Level with topic 3 (Cache); write-strategy Lab after topic 5 |
 | 3 | Resilience pack | Levels | Flow + retries in engine | L | **v1.5** |
 | 4 | Event-driven systems | Level + Lab | Flow (async, pub/sub) + Time & copies | L | with topic 6, after topic 14 |
 | 5 | Data patterns pack | Explainer + Labs | Time & copies | L | after topic 14 builds the kit |
@@ -21,10 +21,13 @@ multi-region. Each step: which bottleneck, which fix, what breaks next, link to 
 Not a new topic: topics 1–13 already are the scaling strategies. Doubles as the Learn front page.
 
 ### 2. Caching strategies
-- Cache-aside (Level, topic 3): hit-rate slider, DB load drops by the hit rate.
-  Twist: cache restarts cold → every request hits the DB at once (stampede).
+- Cache-aside (Level, topic 3): TTL slider; the engine derives the hit rate from it
+  ([ADR 0014](decisions/0014-cache-in-flow-math.md)), DB load drops by the hit rate.
+  Twist: cache restarts cold → every request hits the DB at once (stampede). Plan:
+  [milestones/topic-3-cache.md](milestones/topic-3-cache.md).
 - Write strategy (Lab): write-through vs write-back vs write-around. Stale value shows live with TTL;
   kill the cache under write-back → writes lost. Winner flips with the read/write mix.
+  **Moved after topic 5**: it needs reads and writes as separate traffic (read/write split).
 - Eviction (Lab, topic 18): LRU vs LFU, unchanged.
 
 ### 3. Resilience pack
