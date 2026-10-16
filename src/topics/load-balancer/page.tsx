@@ -137,6 +137,14 @@ export default function LoadBalancerPage() {
             </span>
           </p>
         )}
+        {/* The tradeoffs live in the same panel as the system they describe (design system part 5). */}
+        <TradeoffCard
+          name="Load balancer + second server"
+          awsTag="ELB"
+          card={addLoadBalancerCard}
+          meters={meters(state.world)}
+          layout="strip"
+        />
       </section>
 
       <div className="charts">
@@ -191,16 +199,6 @@ export default function LoadBalancerPage() {
           notice one died or came back.
         </p>
       )}
-
-      <section className="lesson-card" aria-label="Tradeoffs">
-        <h2>What this fix costs</h2>
-        <TradeoffCard
-          name="Load balancer + second server"
-          awsTag="ELB"
-          card={addLoadBalancerCard}
-          meters={meters(state.world)}
-        />
-      </section>
     </article>
   );
 }

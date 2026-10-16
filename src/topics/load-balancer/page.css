@@ -33,9 +33,3 @@
 .button--revive {
   border-style: dashed;
 }
-
-.lesson-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}

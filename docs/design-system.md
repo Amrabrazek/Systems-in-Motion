@@ -143,6 +143,8 @@ The parts every topic reuses. Build them once in `src/ui/shared/` or the Flow ki
   the active link so both sides agree, and resets it on every step. Never color alone: the
   symbols carry it too.
   `<TradeoffCard layout="strip" link={{ active, available, onChange }} … />`
+- **Strip with meters**: "Right now" becomes the first column when the panel is 56rem or wider,
+  so meters and the five rows stay one row (Load balancer page). Narrower, the meters sit on top.
 
 ### 6. Number + tag
 - Value in mono with `tabular-nums`, then the tag: a small outlined box with the letter.

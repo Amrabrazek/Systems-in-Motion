@@ -78,6 +78,17 @@ describe('tradeoff card meters', () => {
     expect(html.match(/meter-step is-on/g)).toHaveLength(3);
     expect(html).toContain(meter.why);
   });
+
+  it('gives the meters their own column hook only when there are meters', () => {
+    const withMeters = renderToStaticMarkup(
+      <TradeoffCard name="Load balancer" card={card} meters={[meter]} layout="strip" />,
+    );
+    const without = renderToStaticMarkup(
+      <TradeoffCard name="Load balancer" card={card} layout="strip" />,
+    );
+    expect(withMeters).toContain('tradeoff-body--meters');
+    expect(without).not.toContain('tradeoff-body--meters');
+  });
 });
 
 describe('tradeoff card links to the picture', () => {
