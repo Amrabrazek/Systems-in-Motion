@@ -1,0 +1,53 @@
+/* Predict → reveal card (topic-only until a second level needs it). Tokens only. */
+.predict {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+.predict h2 {
+  margin: 0;
+  font-size: var(--font-size-md);
+}
+
+.predict-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.predict-choices,
+.predict-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.predict-choices .button[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.predict-note,
+.predict-why {
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+.predict-actions .button {
+  text-decoration: none;
+}
+
+.predict-choices .button:disabled {
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
+.predict .button--link {
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+}

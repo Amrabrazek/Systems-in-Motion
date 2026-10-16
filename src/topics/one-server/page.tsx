@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import type { WorkNode } from '../../engine';
 import { getNumber } from '../../data/numbers';
 import { DotLayer } from '../../kits/flow/DotLayer';
@@ -12,6 +12,8 @@ import { positionToValue, usersScale, valueToPosition } from '../../ui/shared/lo
 import { NumberTag } from '../../ui/shared/NumberTag';
 import { SimControls } from '../../ui/shared/SimControls';
 import { UsersSlider } from '../../ui/shared/UsersSlider';
+import { nextPredictState, startPredict } from './predict';
+import { PredictCard } from './PredictCard';
 import { oneServerWorld, START_USERS } from './world';
 
 const feelsSlow = getNumber('teaching', 'ux.feelsSlowMs');
@@ -26,6 +28,7 @@ export default function OneServerPage() {
   const [sim] = useState(() => createSim(oneServerWorld(), browserClock));
   const [position, setPosition] = useState(() => valueToPosition(usersScale, START_USERS));
   const snapshot = useSim(sim);
+  const [predict, sendPredict] = useReducer(nextPredictState, startPredict);
 
   useEffect(() => {
     sim.start();
@@ -35,6 +38,11 @@ export default function OneServerPage() {
   const { state } = snapshot;
   const server = state.world.nodes.find((node): node is WorkNode => node.kind === 'server');
   const why = whyForState(state);
+  const serverHealth = state.nodes.server?.health ?? 'ok';
+
+  useEffect(() => {
+    sendPredict({ type: 'health', health: serverHealth });
+  }, [serverHealth]);
 
   function moveSlider(next: number) {
     setPosition(next);
@@ -46,6 +54,11 @@ export default function OneServerPage() {
     sim.reset();
   }
 
+  function tryAgain() {
+    reset();
+    sendPredict({ type: 'tryAgain' });
+  }
+
   return (
     <article className="topic">
       <h1>One server</h1>
@@ -53,6 +66,18 @@ export default function OneServerPage() {
         Move the slider to add users. Each one sends a request now and then. Watch what the server
         does when more arrive than it can finish.
       </p>
+
+      {server && (
+        <PredictCard
+          state={predict}
+          capacity={server.capacity}
+          queueMax={server.queueMax}
+          requestsPerUser={state.world.traffic.requestsPerUserPerSec}
+          onPick={(pick) => sendPredict({ type: 'pick', pick, health: serverHealth })}
+          onTryAgain={tryAgain}
+          onSkip={() => sendPredict({ type: 'skip' })}
+        />
+      )}
 
       <section className="panel stage-panel" aria-label="Live system">
         <div className="stage">

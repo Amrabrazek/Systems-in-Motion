@@ -11,7 +11,8 @@
 | [roadmap.md](roadmap.md) | All topics, which kit each needs, what can be built in parallel |
 | [topic-backlog.md](topic-backlog.md) | Locked ideas for later, and what's parked (SOLID, RAG) |
 | [milestones/m1-one-box-breaks.md](milestones/m1-one-box-breaks.md) | The first build, step by step (done) |
-| [milestones/m2-load-balancer-kill.md](milestones/m2-load-balancer-kill.md) | Load balancer + kill a server, step by step |
+| [milestones/m2-load-balancer-kill.md](milestones/m2-load-balancer-kill.md) | Load balancer + kill a server, step by step (done) |
+| [milestones/m3-level-1-predict.md](milestones/m3-level-1-predict.md) | Level 1: predict → reveal (light Play mode) |
 | [decisions/](decisions/) | One short file per big decision (ADR) |
 
 Number tags used everywhere: **M** Measured · **R** Rule of thumb · **T** Teaching guess.

@@ -74,9 +74,10 @@ src/parts/    explainer pages (ADR 0013). Routes + full tree: docs/navigation.md
 - No new dependency without saying why in the PR.
 - Comments explain *why*, not *what*.
 
-## Current milestone: M2 "Load balancer + kill a server"
-Plan: [`docs/milestones/m2-load-balancer-kill.md`](docs/milestones/m2-load-balancer-kill.md). M1 is done.
-Out of scope for M2: kill AZ, LB algorithms, LB capacity, retries, autoscaling, Play mode, Design mode, React Flow.
+## Current milestone: M3 "Level 1: predict → reveal"
+Plan: [`docs/milestones/m3-level-1-predict.md`](docs/milestones/m3-level-1-predict.md). M1 and M2 are done.
+Light Play mode only: a predict card on the one-server page. Out of scope for M3: auto-ramp, fix/twist steps,
+shared Play wrapper, Play on other topics, Design mode.
 
 ## How to work here
 - Start every milestone in **plan mode**; agree steps before code.
