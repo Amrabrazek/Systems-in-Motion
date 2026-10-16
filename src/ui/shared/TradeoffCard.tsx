@@ -42,6 +42,7 @@ export function TradeoffCard({
   layout?: 'card' | 'strip';
   link?: TradeoffLinking;
 }) {
+  const hasMeters = meters !== undefined && meters.length > 0;
   return (
     <article
       className={`tradeoff tradeoff--${layout}`}
@@ -51,46 +52,48 @@ export function TradeoffCard({
         <h3 className="tradeoff-name">{`Fix: ${name}`}</h3>
         {awsTag && <span className="tradeoff-aws">{awsTag}</span>}
       </header>
-      {meters && meters.length > 0 && <MeterStrip meters={meters} />}
-      <dl className="tradeoff-rows">
-        {tradeoffRows.map(({ key, label }) => {
-          const rowLink = link && linkForRow(key, link.available);
-          const mark = rowLink && rowMarks[key];
-          if (!link || !rowLink)
+      <div className={hasMeters ? 'tradeoff-body tradeoff-body--meters' : 'tradeoff-body'}>
+        {hasMeters && <MeterStrip meters={meters} />}
+        <dl className="tradeoff-rows">
+          {tradeoffRows.map(({ key, label }) => {
+            const rowLink = link && linkForRow(key, link.available);
+            const mark = rowLink && rowMarks[key];
+            if (!link || !rowLink)
+              return (
+                <div className={`tradeoff-row tradeoff-row--${key}`} key={key}>
+                  <dt>{label}</dt>
+                  <dd>{rowText(card, key)}</dd>
+                </div>
+              );
+            const classes = `tradeoff-row tradeoff-row--${key} is-linkable tradeoff-row--link-${rowLink}`;
+            // Mouse hover previews; focus covers keyboard and taps (a tap focuses the row).
+            const onMouse = (next: TradeoffLink | undefined) => (event: PointerEvent) => {
+              if (event.pointerType === 'mouse') link.onChange(next);
+            };
             return (
-              <div className={`tradeoff-row tradeoff-row--${key}`} key={key}>
-                <dt>{label}</dt>
+              <div
+                className={link.active === rowLink ? `${classes} is-linked` : classes}
+                key={key}
+                tabIndex={0}
+                onFocus={() => link.onChange(rowLink)}
+                onBlur={() => link.onChange(undefined)}
+                onPointerEnter={onMouse(rowLink)}
+                onPointerLeave={onMouse(undefined)}
+              >
+                <dt>
+                  {mark && (
+                    <span className={`tradeoff-mark tradeoff-mark--${rowLink}`} aria-hidden="true">
+                      {mark}
+                    </span>
+                  )}
+                  {label}
+                </dt>
                 <dd>{rowText(card, key)}</dd>
               </div>
             );
-          const classes = `tradeoff-row tradeoff-row--${key} is-linkable tradeoff-row--link-${rowLink}`;
-          // Mouse hover previews; focus covers keyboard and taps (a tap focuses the row).
-          const onMouse = (next: TradeoffLink | undefined) => (event: PointerEvent) => {
-            if (event.pointerType === 'mouse') link.onChange(next);
-          };
-          return (
-            <div
-              className={link.active === rowLink ? `${classes} is-linked` : classes}
-              key={key}
-              tabIndex={0}
-              onFocus={() => link.onChange(rowLink)}
-              onBlur={() => link.onChange(undefined)}
-              onPointerEnter={onMouse(rowLink)}
-              onPointerLeave={onMouse(undefined)}
-            >
-              <dt>
-                {mark && (
-                  <span className={`tradeoff-mark tradeoff-mark--${rowLink}`} aria-hidden="true">
-                    {mark}
-                  </span>
-                )}
-                {label}
-              </dt>
-              <dd>{rowText(card, key)}</dd>
-            </div>
-          );
-        })}
-      </dl>
+          })}
+        </dl>
+      </div>
     </article>
   );
 }
