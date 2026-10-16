@@ -44,6 +44,7 @@ Split by **topic** for content, by **layer** for shared code. Topics may import 
 |---|---|---|
 | `#/` | Home: topic map | M1 (one card) |
 | `#/learn/:topicId` | Topic page (Level or Lab, from the registry) | M1 (one-server, no Play wrapper yet) |
+| `#/learn/how-systems-scale` | Explainer: how systems scale (step-through, links to live levels) | after M3 |
 | `#/parts/:partId` | Explainer for one part (route may change with the first explainer) | v1.5 |
 | `#/design` | Design mode; `?d=` holds a shared design | M4 |
 
