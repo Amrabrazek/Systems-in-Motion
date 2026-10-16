@@ -1,9 +1,12 @@
 import { edgesByFrom } from './graph';
 import type { LoadBalancerNode, SimEdge, SimNode, SimState, TargetView, World } from './types';
 
-/** Whether a box is really able to take traffic right now. Only servers can be killed. */
+/**
+ * Whether a box is really able to take traffic right now. A dead cache still counts: it
+ * passes every request on to the box behind it (ADR 0014).
+ */
 export function isReallyUp(node: SimNode | undefined): boolean {
-  return node?.kind !== 'server' || node.up;
+  return (node?.kind !== 'server' && node?.kind !== 'database') || node.up;
 }
 
 export function isLoadBalancer(node: SimNode): node is LoadBalancerNode {

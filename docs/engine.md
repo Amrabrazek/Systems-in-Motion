@@ -82,6 +82,24 @@ kill B ──▶ B down ──(lb.healthCheckSeconds: LB still sends 1 in k to B
 The engine reports raw numbers. Charts show an exponential moving average (time constant 0.4 s)
 computed in `engine/metrics.ts`, so tests and charts agree.
 
+## Cache and database (topic 3, ADR 0014)
+
+```
+servers ──all requests──▶ [cache] ──misses only──▶ [database]
+                             └─ hits stop here (cache latency only)
+```
+
+- `database` is a work box with the same math as a server (`db.*` numbers). It can't be killed yet.
+- `cache` does no work (no capacity, no queue). Each step it answers `hitRate` of what arrives and
+  passes the rest on, split evenly across its outgoing edges.
+- `hitRate = rT / (1 + rT) × warmth`, with `r` = requests/s ÷ `cache.keyCount` and `T` = `cache.ttlSeconds`.
+- `warmth` (in `SimState.cacheView`) is the share of keys fetched since the cache (re)started:
+  each step it grows by `(1 − warmth)(1 − e^(−r·dt))`. A new or revived cache starts at 0, so the
+  database takes the full load while it warms up (the stampede).
+- A killed cache passes **every** request on and adds no errors; its latency counts as 0.
+- `throughput` counts cache hits as finished. End-to-end latency treats hits as paths that stop
+  at the cache, so it is `cache + (1 − hitRate) × next hop`.
+
 ## Later (not M1)
 - Kill zone / region: set `up = false` on matching nodes; the LB notices after its health checks.
 - Traffic scripts: `users(t)` instead of a constant.
