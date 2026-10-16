@@ -49,3 +49,27 @@ test('requests flow as dots and both charts draw', async ({ page }) => {
     timeout: 10_000,
   });
 });
+
+// M3 smoke: guess first, watch the server break, then the reveal explains why.
+test('a guess is revealed once the server is overloaded', async ({ page }) => {
+  await page.goto('/#/learn/one-server');
+  const card = page.getByRole('region', { name: 'Predict' });
+  await card.getByRole('button', { name: 'It gets slower' }).click();
+  await expect(card.getByText('Now move the slider')).toBeVisible();
+
+  await page.getByRole('slider').focus();
+  await page.keyboard.press('End');
+
+  await expect(card.getByText('You said it gets slower')).toBeVisible({ timeout: 10_000 });
+  await expect(card.getByRole('link', { name: /Next: Load balancer/ })).toBeVisible();
+
+  await card.getByRole('button', { name: 'Try again' }).click();
+  await expect(card.getByRole('button', { name: 'Nothing changes' })).toBeEnabled();
+  await expect(page.locator('output')).toHaveText('100');
+});
+
+test('skip hides the guess for people who just want the sim', async ({ page }) => {
+  await page.goto('/#/learn/one-server');
+  await page.getByRole('region', { name: 'Predict' }).getByRole('button', { name: 'Skip' }).click();
+  await expect(page.getByRole('region', { name: 'Predict' })).toHaveCount(0);
+});
