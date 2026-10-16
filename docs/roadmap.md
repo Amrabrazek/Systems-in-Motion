@@ -4,7 +4,7 @@
 
 ```
 Done:  M1 one box breaks · M2 load balancer + kill · M3 predict → reveal · "How systems scale" explainer
-Now:   tradeoff strip in the stage panel (explainer + Load balancer done; Flow kit box highlight next)
+Now:   tradeoff strip in the stage panel (explainer + Load balancer done; Flow kit box highlight in review, then LB links)
 Next:  topic 3 Cache (plan first)
 Then:  M4 Design v0
 ```

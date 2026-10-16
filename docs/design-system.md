@@ -142,6 +142,8 @@ The parts every topic reuses. Build them once in `src/ui/shared/` or the Flow ki
   box and its rows light (surface-soft fill plus a 3px bar in the mark's color). The page owns
   the active link so both sides agree, and resets it on every step. Never color alone: the
   symbols carry it too.
+  On the live Flow stage a lit box gets a 3px ring just outside its frame (accent or bad), so
+  the box's own health color stays readable inside it (`FlowStage highlight`).
   `<TradeoffCard layout="strip" link={{ active, available, onChange }} … />`
 - **Strip with meters**: "Right now" becomes the first column when the panel is 56rem or wider,
   so meters and the five rows stay one row (Load balancer page). Narrower, the meters sit on top.

@@ -167,3 +167,17 @@
 .dot--dropped {
   fill: var(--color-bad);
 }
+
+/* Lit from outside the stage (a tradeoff row): a ring around the box, in the row's mark color. */
+.flow-box-halo {
+  fill: none;
+  stroke-width: 3;
+}
+
+.flow-box-halo--fix {
+  stroke: var(--color-accent);
+}
+
+.flow-box-halo--limit {
+  stroke: var(--color-bad);
+}
