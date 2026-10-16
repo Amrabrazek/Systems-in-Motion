@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { TradeoffCard } from './TradeoffCard';
 import type { Meter } from './meters';
-import { costText, type TradeoffCard as Card } from './tradeoff';
+import { costText, linkForRow, type TradeoffCard as Card } from './tradeoff';
 
 const card: Card = {
   fixes: 'One server can not keep up',
@@ -77,5 +77,47 @@ describe('tradeoff card meters', () => {
     expect(html).toContain('aria-label="3 of 3"');
     expect(html.match(/meter-step is-on/g)).toHaveLength(3);
     expect(html).toContain(meter.why);
+  });
+});
+
+describe('tradeoff card links to the picture', () => {
+  const noop = () => undefined;
+
+  it('links the fix rows and the breaks-next row, never cost or complexity', () => {
+    const all = ['fix', 'limit'] as const;
+    expect(linkForRow('fixes', all)).toBe('fix');
+    expect(linkForRow('newRisk', all)).toBe('fix');
+    expect(linkForRow('breaksNext', all)).toBe('limit');
+    expect(linkForRow('cost', all)).toBeUndefined();
+    expect(linkForRow('complexity', all)).toBeUndefined();
+  });
+
+  it('does not link a row when the picture has no box for it', () => {
+    expect(linkForRow('breaksNext', ['fix'])).toBeUndefined();
+  });
+
+  it('marks and lights only the active link', () => {
+    const html = renderToStaticMarkup(
+      <TradeoffCard
+        name="Read replicas"
+        card={card}
+        layout="strip"
+        link={{ active: 'limit', available: ['fix', 'limit'], onChange: noop }}
+      />,
+    );
+    expect(html).toContain('tradeoff--strip');
+    expect(html.match(/is-linked/g)).toHaveLength(1);
+    expect(html).toMatch(/tradeoff-row--breaksNext[^"]*is-linked/);
+    // The same symbols the boxes use, so the eye can match row to box.
+    expect(html).toContain('tradeoff-mark--fix');
+    expect(html).toContain('tradeoff-mark--limit');
+    expect(html.match(/tabindex="0"/g)).toHaveLength(3);
+  });
+
+  it('stays a plain card when the page does not link it', () => {
+    const html = renderToStaticMarkup(<TradeoffCard name="Load balancer" card={card} />);
+    expect(html).toContain('tradeoff--card');
+    expect(html).not.toContain('tabindex');
+    expect(html).not.toContain('tradeoff-mark');
   });
 });

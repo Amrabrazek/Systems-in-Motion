@@ -1,7 +1,7 @@
 import { useState, type KeyboardEvent } from 'react';
 import { Link } from 'react-router';
 import { TradeoffCard } from '../../ui/shared/TradeoffCard';
-import { partChanges } from './diagram';
+import { availableLinks, partChanges, type Link as PartLink } from './diagram';
 import { ScaleDiagram } from './ScaleDiagram';
 import { moveStep, stepForKey } from './stepper';
 import { steps } from './steps';
@@ -12,10 +12,18 @@ import './page.css';
  * The stepper lives here until a second explainer shows what a shared one needs.
  */
 export default function HowSystemsScalePage() {
-  const [index, setIndex] = useState(0);
+  const [index, setStep] = useState(0);
+  // Which row of the strip and which boxes are lit together. A new step starts with nothing lit.
+  const [activeLink, setActiveLink] = useState<PartLink>();
   const step = steps[index] ?? steps[0];
   if (!step) return null;
   const changes = partChanges(steps[index - 1]?.diagram, step.diagram);
+  const links = availableLinks(step.diagram, changes);
+
+  function setIndex(next: number) {
+    setStep(next);
+    setActiveLink(undefined);
+  }
   const isFirst = index === 0;
   const isLast = index === steps.length - 1;
 
@@ -50,10 +58,49 @@ export default function HowSystemsScalePage() {
           ))}
         </ol>
 
+        <header className="scale-context">
+          <h2>
+            {step.title}
+            {step.move && <span className="scale-move">{step.move}</span>}
+          </h2>
+          <p>
+            <strong>{isFirst ? 'Where we start: ' : 'The problem: '}</strong>
+            {step.problem}
+          </p>
+          <p className="scale-live">
+            {'topicId' in step.live ? (
+              <Link className="button" to={`/learn/${step.live.topicId}`}>
+                ▶ Try it live: {step.live.label}
+              </Link>
+            ) : (
+              <span className="muted">{step.live.comingSoon}</span>
+            )}
+          </p>
+        </header>
+
         <div className="stage">
-          <ScaleDiagram diagram={step.diagram} changes={changes} orientation="wide" />
-          <ScaleDiagram diagram={step.diagram} changes={changes} orientation="narrow" />
+          {(['wide', 'narrow'] as const).map((orientation) => (
+            <ScaleDiagram
+              key={orientation}
+              diagram={step.diagram}
+              changes={changes}
+              orientation={orientation}
+              activeLink={activeLink}
+              onLink={setActiveLink}
+            />
+          ))}
         </div>
+
+        {/* The tradeoffs sit inside the panel, under the picture, so the two read as one. */}
+        {step.fix && (
+          <TradeoffCard
+            name={step.fix.name}
+            card={step.fix.card}
+            layout="strip"
+            link={{ active: activeLink, available: links, onChange: setActiveLink }}
+            {...(step.fix.awsTag ? { awsTag: step.fix.awsTag } : {})}
+          />
+        )}
 
         <div className="panel-row scale-nav">
           <button
@@ -76,33 +123,6 @@ export default function HowSystemsScalePage() {
             Next →
           </button>
         </div>
-      </section>
-
-      <section className="scale-caption" aria-label="This step">
-        <h2>
-          {step.title}
-          {step.move && <span className="scale-move">{step.move}</span>}
-        </h2>
-        <p>
-          <strong>{isFirst ? 'Where we start: ' : 'The problem: '}</strong>
-          {step.problem}
-        </p>
-        {step.fix && (
-          <TradeoffCard
-            name={step.fix.name}
-            card={step.fix.card}
-            {...(step.fix.awsTag ? { awsTag: step.fix.awsTag } : {})}
-          />
-        )}
-        <p className="scale-live">
-          {'topicId' in step.live ? (
-            <Link className="button" to={`/learn/${step.live.topicId}`}>
-              ▶ Try it live: {step.live.label}
-            </Link>
-          ) : (
-            <span className="muted">{step.live.comingSoon}</span>
-          )}
-        </p>
       </section>
     </article>
   );

@@ -32,6 +32,12 @@
 .scale-diagram {
   display: block;
   width: 100%;
+  /*
+   * Capped by height, not width: later steps have a taller canvas. The viewBox keeps the
+   * picture's shape and centers it, so the picture, its tradeoffs and the step buttons fit
+   * a laptop screen together.
+   */
+  max-height: 19rem;
   height: auto;
   margin: 0 auto;
   font-family: var(--font-body);
@@ -41,6 +47,7 @@
 .scale-diagram--narrow {
   display: none;
   max-width: 380px;
+  max-height: none;
 }
 
 @media (max-width: 560px) {
@@ -125,6 +132,16 @@
   stroke: var(--color-bad);
 }
 
+/* Lit from the tradeoff strip (or by pointing at the box): same color as the row's mark. */
+.scale-part.is-lit .scale-box,
+.scale-region.is-lit .scale-region-frame {
+  stroke-width: 4;
+}
+
+.scale-part.is-lit:not(.is-limit) .scale-box {
+  fill: var(--color-surface-soft);
+}
+
 .scale-region-name {
   fill: var(--color-text-muted);
   font-family: var(--font-mono);
@@ -149,18 +166,32 @@
   text-align: center;
 }
 
-.scale-caption {
+.scale-context {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
 }
 
-.scale-caption h2 {
+.scale-context h2 {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--space-2);
   margin: 0;
+  font-size: var(--font-size-md);
+}
+
+.scale-context p {
+  flex: 1 1 20rem;
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+.scale-context .scale-live {
+  flex: 0 0 auto;
 }
 
 .scale-move {
@@ -171,11 +202,13 @@
   text-transform: uppercase;
 }
 
-.scale-caption p {
-  margin: 0;
-}
-
 .scale-live .button {
   display: inline-block;
   text-decoration: none;
+}
+
+.scale-part.is-changed,
+.scale-part.is-limit,
+.scale-region.is-limit {
+  cursor: pointer;
 }
