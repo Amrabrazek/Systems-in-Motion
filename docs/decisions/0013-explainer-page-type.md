@@ -29,10 +29,14 @@ Explainer ──"try it live"──▶ Level ──"compare"──▶ Lab       
   glue, not the product: blogs and YouTube already do diagrams well.
 - Steps are data (diagram state + caption), drawn by one shared **Stepper** part in `src/ui/shared`.
   The Stepper is built with the first explainer, not before.
+  *Update 2026-10-16:* the first explainer keeps its stepper inside the topic
+  (`src/topics/how-systems-scale/`). It moves to `ui/shared` with the second explainer, once two
+  examples show its real shape (same rule as the M3 predict card).
 - Same content rules as the rest of Learn: plain language, tagged numbers, tradeoff cards on fixes.
 
 ## Consequences
-- `#/parts/:partId` deep dives become explainers (route decided with the first one).
+- `#/parts/:partId` deep dives become explainers. Route decided with the first one: an explainer
+  is a registry topic with `page: 'explainer'`, at `#/learn/:topicId` like every other topic.
 - First explainer: "How systems scale" (a map of bottleneck → fix → what breaks next, linking each Level). After M3.
 
 **Revisit when:** the first explainer ships; check whether people click through to the live page.

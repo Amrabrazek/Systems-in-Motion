@@ -3,8 +3,8 @@ import { lazy, type ComponentType, type LazyExoticComponent } from 'react';
 export interface TopicInfo {
   id: string; // URL slug: #/learn/<id>
   title: string;
-  kit: 'flow' | 'data-layout' | 'time-and-copies' | 'algorithm';
-  page: 'level' | 'lab';
+  kit: 'flow' | 'data-layout' | 'time-and-copies' | 'algorithm' | 'none';
+  page: 'level' | 'lab' | 'explainer';
   status: 'building' | 'ready';
   // Lazy so adding topic 20 doesn't slow down topic 1 (docs/navigation.md).
   Page: LazyExoticComponent<ComponentType>;
@@ -27,6 +27,14 @@ export const topics: TopicInfo[] = [
     page: 'level',
     status: 'building',
     Page: lazy(() => import('./load-balancer/page')),
+  },
+  {
+    id: 'how-systems-scale',
+    title: 'How systems scale',
+    kit: 'none',
+    page: 'explainer',
+    status: 'building',
+    Page: lazy(() => import('./how-systems-scale/page')),
   },
 ];
 

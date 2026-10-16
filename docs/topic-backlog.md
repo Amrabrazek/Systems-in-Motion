@@ -9,7 +9,7 @@ Effort: **S** 1 PR, content only · **M** 2–3 PRs on an existing kit · **L** 
 
 | Rank | Idea | Page | Kit | Effort | When |
 |---|---|---|---|---|---|
-| 1 | "How systems scale" | Explainer hub | none (Stepper) | S | after M3 (first explainer, [ADR 0013](decisions/0013-explainer-page-type.md)) |
+| 1 | "How systems scale" | Explainer hub | none (Stepper) | S | **built** at `#/learn/how-systems-scale` (first explainer, [ADR 0013](decisions/0013-explainer-page-type.md)) |
 | 2 | Caching strategies | Level + Lab | Flow + Algorithm | M | with topic 3 (Cache) |
 | 3 | Resilience pack | Levels | Flow + retries in engine | L | **v1.5** |
 | 4 | Event-driven systems | Level + Lab | Flow (async, pub/sub) + Time & copies | L | with topic 6, after topic 14 |
