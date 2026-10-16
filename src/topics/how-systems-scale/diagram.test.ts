@@ -3,7 +3,10 @@ import {
   boxRect,
   canvasSize,
   cells,
+  availableLinks,
   describeDiagram,
+  linkedParts,
+  linkForPart,
   partChanges,
   wrapLabel,
   type Diagram,
@@ -77,5 +80,39 @@ describe('partChanges', () => {
 describe('describeDiagram', () => {
   it('names the parts and the limit in words', () => {
     expect(describeDiagram(small)).toBe('Parts: Users, Server. Limit: Server (full).');
+  });
+});
+
+describe('links between the picture and the tradeoff strip', () => {
+  const before: Diagram = small;
+  const after: Diagram = {
+    parts: [...small.parts, { id: 'lb', label: 'Load balancer' }],
+    edges: small.edges,
+    limit: { part: 'servers', word: 'full' },
+  };
+  const changes = partChanges(before, after);
+
+  it('offers a fix link only when something changed', () => {
+    expect(availableLinks(small, partChanges(undefined, small))).toEqual(['limit']);
+    expect(availableLinks(after, changes)).toEqual(['fix', 'limit']);
+  });
+
+  it('lights the changed parts for the fix and the limit part for what breaks next', () => {
+    expect([...linkedParts(after, changes, 'fix')]).toEqual(['lb']);
+    expect([...linkedParts(after, changes, 'limit')]).toEqual(['servers']);
+    expect(linkedParts(after, changes, undefined).size).toBe(0);
+  });
+
+  it('points a box at its own link, and the limit wins when a part is both', () => {
+    expect(linkForPart('lb', after, changes)).toBe('fix');
+    expect(linkForPart('users', after, changes)).toBeUndefined();
+    const bigger: Diagram = {
+      ...small,
+      parts: [
+        { id: 'users', label: 'Users' },
+        { id: 'servers', label: 'Server', big: true },
+      ],
+    };
+    expect(linkForPart('servers', bigger, partChanges(small, bigger))).toBe('limit');
   });
 });

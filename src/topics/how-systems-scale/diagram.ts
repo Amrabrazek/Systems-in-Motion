@@ -1,3 +1,5 @@
+import type { TradeoffLink } from '../../ui/shared/tradeoff';
+
 /**
  * The "how systems scale" picture as data. Every part has one fixed cell, so a part never moves
  * between steps: the reader sees the system grow around what they already know.
@@ -199,6 +201,39 @@ export function partChanges(before: Diagram | undefined, after: Diagram): Map<Pa
       changes.set(part.id, 'changed');
   }
   return changes;
+}
+
+/** The tradeoff card's links: the fix, and what breaks next. */
+export type Link = TradeoffLink;
+
+/** Links this step can show: a fix needs a changed part, a limit needs a part at its limit. */
+export function availableLinks(diagram: Diagram, changes: ReadonlyMap<PartId, Change>): Link[] {
+  const links: Link[] = [];
+  if (changes.size > 0) links.push('fix');
+  if (diagram.limit) links.push('limit');
+  return links;
+}
+
+/** Parts to light up for a link. A part can be both new and at its limit (the bigger server). */
+export function linkedParts(
+  diagram: Diagram,
+  changes: ReadonlyMap<PartId, Change>,
+  link: Link | undefined,
+): Set<PartId> {
+  if (link === 'fix') return new Set(changes.keys());
+  if (link === 'limit' && diagram.limit) return new Set([diagram.limit.part]);
+  return new Set();
+}
+
+/** What pointing at a part lights up. The limit wins: the red box is the step's point. */
+export function linkForPart(
+  id: PartId,
+  diagram: Diagram,
+  changes: ReadonlyMap<PartId, Change>,
+): Link | undefined {
+  if (diagram.limit?.part === id) return 'limit';
+  if (changes.has(id)) return 'fix';
+  return undefined;
 }
 
 /** One sentence for screen readers: the parts in request order, then the limit. */

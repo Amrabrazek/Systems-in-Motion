@@ -131,6 +131,19 @@ The parts every topic reuses. Build them once in `src/ui/shared/` or the Flow ki
     from capacity, so it does not flicker during the health-check gap.
   - Still no numbers in the card.
 
+- **Strip layout** (`layout="strip"`): the card goes *inside* the stage panel, right under the
+  picture, so the picture and its tradeoffs read as one place. The five rows sit side by side;
+  the panel is the frame, so no border or hard shadow of its own. Below 40rem of panel width
+  (a container query, not the screen) it falls back to the stacked rows. Default stays `"card"`.
+- **Links to the picture** (`link` prop): Fixes and New risk point at the fix (the "+ new" /
+  "~ changed" boxes); Breaks next points at the box at its limit ("! FULL"). Cost and
+  Complexity belong to the whole design and point at nothing. Linked rows carry the box's own
+  symbol (**+** accent, **!** bad). Hover, focus or tap a row and its boxes thicken; point at a
+  box and its rows light (surface-soft fill plus a 3px bar in the mark's color). The page owns
+  the active link so both sides agree, and resets it on every step. Never color alone: the
+  symbols carry it too.
+  `<TradeoffCard layout="strip" link={{ active, available, onChange }} … />`
+
 ### 6. Number + tag
 - Value in mono with `tabular-nums`, then the tag: a small outlined box with the letter.
 - Tag colors: **M** `--color-ok`, **R** `--color-accent`, **T** and **U** `--color-text-muted`.

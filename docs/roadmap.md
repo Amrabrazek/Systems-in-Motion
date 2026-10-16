@@ -4,6 +4,7 @@
 
 ```
 Done:  M1 one box breaks · M2 load balancer + kill · M3 predict → reveal · "How systems scale" explainer
+Now:   tradeoff strip in the stage panel (explainer done, Load balancer page next)
 Next:  topic 3 Cache (plan first)
 Then:  M4 Design v0
 ```
@@ -63,7 +64,7 @@ Page types: **Level** = Play mode (predict → break → fix), **Lab** = A vs B 
 | 18 | Cache eviction (LRU vs LFU) | Lab | Algorithm | eviction policies | 17 | |
 | 19 | LB algorithms | Lab | Algorithm (+ Flow) | per-server speed | 2, 17 | |
 | 20 | Outside services, Cost | Explainer | none | none | anytime | |
-| E1 | How systems scale | Explainer | none (Stepper) | none | anytime | ✅ done |
+| E1 | How systems scale | Explainer | none (Stepper) | none | anytime | ✅ done (tradeoff strip + links) |
 | D | Design mode | Tool | Flow | headless sweep, `users(t)`, URL encoding | 2 | |
 
 ## v1: the smallest version that serves both audiences

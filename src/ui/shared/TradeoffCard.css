@@ -165,3 +165,101 @@
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
+
+/* Rows that point at a box in the picture: hover, focus or tap lights both up. */
+.tradeoff-row.is-linkable {
+  /* Room for the lit bar, pulled back out so labels stay in line with the other rows. */
+  margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-2));
+  padding: var(--space-1) var(--space-2);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.tradeoff-row.is-linkable:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.tradeoff-row.is-linked {
+  background: var(--color-surface-soft);
+}
+
+.tradeoff-row--link-fix.is-linked {
+  box-shadow: inset 3px 0 0 var(--color-accent);
+}
+
+.tradeoff-row--link-limit.is-linked {
+  box-shadow: inset 3px 0 0 var(--color-bad);
+}
+
+.tradeoff-mark {
+  margin-right: var(--space-1);
+  font-weight: 700;
+}
+
+.tradeoff-mark--fix {
+  color: var(--color-accent);
+}
+
+.tradeoff-mark--limit {
+  color: var(--color-bad);
+}
+
+/*
+ * Strip layout: the card lives inside a stage panel, under the picture, so both read as one place.
+ * No border or hard shadow of its own; the panel is the frame. A container query, not a media
+ * query: what matters is how wide the panel is, not the screen.
+ */
+.tradeoff--strip {
+  max-width: none;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  border-radius: 0;
+  box-shadow: none;
+  container-type: inline-size;
+}
+
+.tradeoff--strip .tradeoff-head {
+  padding: var(--space-1) var(--space-3);
+}
+
+.tradeoff--strip .tradeoff-name {
+  font-size: var(--font-size-sm);
+}
+
+/* Five columns need about 8rem each; narrower panels fall back to the stacked rows. */
+@container (min-width: 40rem) {
+  .tradeoff--strip .tradeoff-rows {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0;
+    padding: 0;
+  }
+
+  .tradeoff--strip .tradeoff-row {
+    grid-column: auto;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    margin: 0;
+    border-left: 1px solid var(--color-border);
+    border-radius: 0;
+  }
+
+  .tradeoff--strip .tradeoff-row:first-child {
+    border-left: 0;
+  }
+
+  .tradeoff--strip .tradeoff-row dd {
+    font-size: var(--font-size-xs);
+    line-height: 1.4;
+  }
+
+  .tradeoff--strip .tradeoff-row--link-fix.is-linked {
+    box-shadow: inset 0 3px 0 var(--color-accent);
+  }
+
+  .tradeoff--strip .tradeoff-row--link-limit.is-linked {
+    box-shadow: inset 0 3px 0 var(--color-bad);
+  }
+}

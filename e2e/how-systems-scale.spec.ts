@@ -14,6 +14,12 @@ test('stepping through how systems scale', async ({ page }) => {
   await expect(position).toContainText('More servers');
   await expect(page.getByRole('article', { name: /Load balancer \+ more servers/ })).toBeVisible();
 
+  // The tradeoffs sit with the picture: pointing at "Breaks next" lights the box that breaks.
+  await page.locator('.tradeoff-row--breaksNext').hover();
+  await expect(page.locator('.scale-diagram--wide .scale-part--db')).toHaveClass(/is-lit/);
+  await page.locator('.tradeoff-row--cost').hover();
+  await expect(page.locator('.scale-diagram--wide .is-lit')).toHaveCount(0);
+
   await page.getByRole('button', { name: /Second region/ }).click();
   await expect(page.getByRole('button', { name: 'Next →' })).toBeDisabled();
 

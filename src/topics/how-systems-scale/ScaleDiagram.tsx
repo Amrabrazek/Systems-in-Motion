@@ -1,3 +1,4 @@
+import type { PointerEvent } from 'react';
 import {
   boxRect,
   canvasSize,
@@ -8,12 +9,16 @@ import {
   geometry,
   gridPosition,
   isFrame,
+  linkedParts,
+  linkForPart,
   regionLabelCell,
   wrapLabel,
   type Change,
   type Diagram,
   type DiagramPart,
+  type Link,
   type Orientation,
+  type PartId,
   type Rect,
 } from './diagram';
 
@@ -26,11 +31,29 @@ export function ScaleDiagram({
   diagram,
   changes,
   orientation,
+  activeLink,
+  onLink,
 }: {
   diagram: Diagram;
-  changes: ReadonlyMap<string, Change>;
+  changes: ReadonlyMap<PartId, Change>;
   orientation: Orientation;
+  /** Lit up from the tradeoff strip, or by pointing at a box here. */
+  activeLink: Link | undefined;
+  onLink: (link: Link | undefined) => void;
 }) {
+  const lit = linkedParts(diagram, changes, activeLink);
+  // Mouse hover previews. A tap toggles, since touch has no hover. The rows below are the
+  // keyboard path, so boxes stay out of the tab order.
+  const pointer = (id: PartId) => {
+    const link = linkForPart(id, diagram, changes);
+    if (!link) return {};
+    return {
+      onPointerEnter: (event: PointerEvent) => event.pointerType === 'mouse' && onLink(link),
+      onPointerLeave: (event: PointerEvent) => event.pointerType === 'mouse' && onLink(undefined),
+      onPointerUp: (event: PointerEvent) =>
+        event.pointerType !== 'mouse' && onLink(activeLink === link ? undefined : link),
+    };
+  };
   const size = canvasSize(diagram, orientation);
   const boxes = diagram.parts.filter((part) => !isFrame(part.id));
   const frames = diagram.parts.filter((part) => isFrame(part.id));
@@ -53,6 +76,8 @@ export function ScaleDiagram({
           orientation={orientation}
           isLimit={diagram.limit?.part === part.id}
           limitWord={diagram.limit?.word}
+          isLit={lit.has(part.id)}
+          pointer={pointer(part.id)}
         />
       ))}
       {diagram.edges.map(({ from, to, copy }) => {
@@ -76,6 +101,8 @@ export function ScaleDiagram({
           orientation={orientation}
           change={changes.get(part.id)}
           limitWord={diagram.limit?.part === part.id ? diagram.limit.word : undefined}
+          isLit={lit.has(part.id)}
+          pointer={pointer(part.id)}
         />
       ))}
     </svg>
@@ -87,17 +114,24 @@ function RegionFrame({
   orientation,
   isLimit,
   limitWord,
+  isLit,
+  pointer,
 }: {
   part: DiagramPart;
   orientation: Orientation;
   isLimit: boolean;
   limitWord: string | undefined;
+  isLit: boolean;
+  pointer: PointerHandlers;
 }) {
   const inset = 4;
+  const classes = ['scale-region'];
+  if (isLimit) classes.push('is-limit');
+  if (isLit) classes.push('is-lit');
   const area = cellArea(cells[part.id], orientation);
   const label = center(cellArea(regionLabelCell, orientation));
   return (
-    <g className={isLimit ? 'scale-region is-limit' : 'scale-region'}>
+    <g className={classes.join(' ')} {...pointer}>
       <rect
         className="scale-region-frame"
         x={area.x + inset}
@@ -128,11 +162,15 @@ function PartBox({
   orientation,
   change,
   limitWord,
+  isLit,
+  pointer,
 }: {
   part: DiagramPart;
   orientation: Orientation;
   change: Change | undefined;
   limitWord: string | undefined;
+  isLit: boolean;
+  pointer: PointerHandlers;
 }) {
   const rect = boxRect(cells[part.id], orientation, part.big);
   const middle = center(rect);
@@ -153,9 +191,10 @@ function PartBox({
   const classes = ['scale-part', `scale-part--${part.id}`];
   if (change) classes.push('is-changed');
   if (limitWord) classes.push('is-limit');
+  if (isLit) classes.push('is-lit');
 
   return (
-    <g className={classes.join(' ')}>
+    <g className={classes.join(' ')} {...pointer}>
       {part.elastic && <BackCopy rect={rect} stepsBack={copiesBehind + 1} spare />}
       {Array.from({ length: copiesBehind }, (_, index) => (
         <BackCopy key={index} rect={rect} stepsBack={copiesBehind - index} />
@@ -175,6 +214,12 @@ function PartBox({
     </g>
   );
 }
+
+type PointerHandlers = {
+  onPointerEnter?: (event: PointerEvent) => void;
+  onPointerLeave?: (event: PointerEvent) => void;
+  onPointerUp?: (event: PointerEvent) => void;
+};
 
 /** A copy peeking out behind the box, up and to the right. A spare is dashed: it comes and goes. */
 function BackCopy({ rect, stepsBack, spare }: { rect: Rect; stepsBack: number; spare?: boolean }) {
