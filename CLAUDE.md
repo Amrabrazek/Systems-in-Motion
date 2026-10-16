@@ -74,12 +74,12 @@ src/parts/    explainer pages (ADR 0013). Routes + full tree: docs/navigation.md
 - No new dependency without saying why in the PR.
 - Comments explain *why*, not *what*.
 
-## Current milestone: M3 "Level 1: predict → reveal"
-Plan: [`docs/milestones/m3-level-1-predict.md`](docs/milestones/m3-level-1-predict.md). M1 and M2 are done.
-Light Play mode only: a predict card on the one-server page. Out of scope for M3: auto-ramp, fix/twist steps,
-shared Play wrapper, Play on other topics, Design mode.
+## Current status
+Done and next: the "Where we are" block in [`docs/roadmap.md`](docs/roadmap.md). Kept only there so it never goes stale here.
 
 ## How to work here
+- **Every PR updates `docs/roadmap.md`**: the "Where we are" block and the topic's Status cell.
+  "What is next?" is answered from that file, not from chat.
 - Start every milestone in **plan mode**; agree steps before code.
 - Engine first with tests, then the UI on top.
 - One PR per plan step. CI (typecheck, lint, test, build) must be green before merge.
