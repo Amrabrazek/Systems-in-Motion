@@ -23,6 +23,8 @@ test('the tradeoff rows light the cache and the database', async ({ page }) => {
   await page.goto('/#/learn/cache');
   await page.getByRole('button', { name: '+ Add a cache' }).click();
   const stage = page.locator('.flow-stage');
+  // The cache joins on the next sim step; only then does the Fixes row have a box to light.
+  await expect(stage.getByText('~ WARMING UP')).toBeVisible();
   await page.locator('.tradeoff-row--fixes').hover();
   await expect(stage.locator('.flow-box.is-lit')).toHaveCount(1);
   await expect(stage.locator('.flow-box-halo--fix')).toHaveCount(1);
