@@ -11,6 +11,8 @@ import { positionToValue, usersScale, valueToPosition } from '../../ui/shared/lo
 import { NumberTag } from '../../ui/shared/NumberTag';
 import { SimControls } from '../../ui/shared/SimControls';
 import { TradeoffCard } from '../../ui/shared/TradeoffCard';
+import type { TradeoffLink } from '../../ui/shared/tradeoff';
+import { highlightFor, linkForNode } from './links';
 import { UsersSlider } from '../../ui/shared/UsersSlider';
 import { addLoadBalancerCard } from './tradeoff';
 import {
@@ -34,6 +36,8 @@ export default function LoadBalancerPage() {
   const [sim] = useState(() => createSim(loadBalancerWorld(), browserClock));
   const [position, setPosition] = useState(() => valueToPosition(usersScale, START_USERS));
   const snapshot = useSim(sim);
+  // A strip row and its boxes light together; the page owns which one (design system part 5).
+  const [activeLink, setActiveLink] = useState<TradeoffLink>();
 
   useEffect(() => {
     sim.start();
@@ -45,6 +49,7 @@ export default function LoadBalancerPage() {
   const servers = serversOf(state.world);
   const lb = state.world.nodes.find((node) => node.kind === 'loadBalancer');
   const why = whyForState(state);
+  const highlight = highlightFor(state.world, activeLink);
 
   function moveSlider(next: number) {
     setPosition(next);
@@ -52,10 +57,12 @@ export default function LoadBalancerPage() {
   }
 
   function setServerCount(count: number) {
+    setActiveLink(undefined);
     sim.dispatch({ type: 'replaceWorld', world: withServerCount(state.world, count) });
   }
 
   function reset() {
+    setActiveLink(undefined);
     setPosition(valueToPosition(usersScale, START_USERS));
     sim.reset();
   }
@@ -70,7 +77,12 @@ export default function LoadBalancerPage() {
 
       <section className="panel stage-panel" aria-label="Live system">
         <div className="stage">
-          <FlowStage state={state} dots={<DotLayer sim={sim} />} />
+          <FlowStage
+            state={state}
+            dots={<DotLayer sim={sim} />}
+            {...(highlight ? { highlight } : {})}
+            onPointNode={(id) => setActiveLink(id ? linkForNode(state.world, id) : undefined)}
+          />
         </div>
         <div className="panel-row controls-row">
           <UsersSlider position={position} onChange={moveSlider} />
@@ -144,6 +156,7 @@ export default function LoadBalancerPage() {
           card={addLoadBalancerCard}
           meters={meters(state.world)}
           layout="strip"
+          link={{ active: activeLink, available: ['fix', 'limit'], onChange: setActiveLink }}
         />
       </section>
 
