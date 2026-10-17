@@ -18,6 +18,12 @@
 | **Time & copies** | copies of data changing over time | replication lag, CAP, idempotency | v1.5 |
 | **Algorithm** | one box's internal choice under traffic | rate limiting, cache eviction | v1.5 |
 
+**Flow stage highlight** (`src/kits/flow/highlight.ts`): a page can light boxes by node id,
+`<FlowStage highlight={{ ids, tone: 'fix' | 'limit' }} onPointNode={…} />`. The kit draws a ring
+around each lit box (accent for fix, bad for limit, the same colors as the tradeoff marks) and
+reports which box the reader points at: mouse hover, or a tap that toggles. It never knows why a
+box is lit, so any topic can use it (tradeoff rows, a lesson step pointing at the cache).
+
 Every kit's model follows the same pure contract, so the sim loop, tests and lab template
 work for all of them:
 

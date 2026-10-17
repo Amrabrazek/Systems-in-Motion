@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { PointerEvent, ReactNode } from 'react';
 import type {
   LoadBalancerNode,
   NodeStatus,
@@ -8,6 +8,7 @@ import type {
   WorkNode,
 } from '../../engine';
 import { boxLook, lookText } from './health';
+import { pointAfterTap, type StageHighlight } from './highlight';
 import { stageLayout, type BoxPlace, type StageLayout } from './layout';
 import { peopleShown, slotsFilled, STAGE } from './stageMath';
 import './flow.css';
@@ -18,9 +19,20 @@ const COUNT_WORDS = ['NO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE'];
 /**
  * The Flow stage: users ──▶ any boxes, laid out from the world graph (ADR 0012). Plain SVG
  * (ADR 0006). `dots` is drawn between the waiting lines and the boxes, so dots slide under a
- * box as they are served.
+ * box as they are served. `highlight` lights boxes by id; `onPointNode` reports which box the
+ * reader points at (mouse hover, or a tap that toggles), so a page can light what goes with it.
  */
-export function FlowStage({ state, dots }: { state: SimState; dots?: ReactNode }) {
+export function FlowStage({
+  state,
+  dots,
+  highlight,
+  onPointNode,
+}: {
+  state: SimState;
+  dots?: ReactNode;
+  highlight?: StageHighlight;
+  onPointNode?: (id: string | undefined) => void;
+}) {
   const { world } = state;
   const users = world.nodes.find((node): node is UsersNode => node.kind === 'users');
   if (!users) return null;
@@ -57,17 +69,80 @@ export function FlowStage({ state, dots }: { state: SimState; dots?: ReactNode }
         const node = byId.get(place.id);
         const status = state.nodes[place.id];
         if (!node || !status) return null;
+        const lit = highlight?.ids.has(node.id) ? highlight.tone : undefined;
+        const pointer = onPointNode ? pointerFor(node.id, highlight, onPointNode) : {};
         if (node.kind === 'loadBalancer') {
-          return <RouterBox key={node.id} node={node} place={place} state={state} />;
+          return (
+            <RouterBox
+              key={node.id}
+              node={node}
+              place={place}
+              state={state}
+              lit={lit}
+              {...pointer}
+            />
+          );
         }
         if (node.kind === 'server') {
-          return <ServerBox key={node.id} node={node} place={place} status={status} />;
+          return (
+            <ServerBox
+              key={node.id}
+              node={node}
+              place={place}
+              status={status}
+              lit={lit}
+              {...pointer}
+            />
+          );
         }
         return null;
       })}
       <ColumnCaptions layout={layout} byId={byId} />
     </svg>
   );
+}
+
+type PointerHandlers = {
+  onPointerEnter?: (event: PointerEvent) => void;
+  onPointerLeave?: (event: PointerEvent) => void;
+  onPointerUp?: (event: PointerEvent) => void;
+};
+
+function pointerFor(
+  id: string,
+  highlight: StageHighlight | undefined,
+  onPointNode: (id: string | undefined) => void,
+): PointerHandlers {
+  return {
+    onPointerEnter: (event) => {
+      if (event.pointerType === 'mouse') onPointNode(id);
+    },
+    onPointerLeave: (event) => {
+      if (event.pointerType === 'mouse') onPointNode(undefined);
+    },
+    onPointerUp: (event) => {
+      if (event.pointerType !== 'mouse') onPointNode(pointAfterTap(id, highlight));
+    },
+  };
+}
+
+/** A ring just outside the box frame, so lighting never hides the health color inside it. */
+function Halo({ place, tone }: { place: BoxPlace; tone: StageHighlight['tone'] }) {
+  const pad = 5;
+  return (
+    <rect
+      className={`flow-box-halo flow-box-halo--${tone}`}
+      x={place.x - pad}
+      y={place.top - pad}
+      width={place.width + pad * 2}
+      height={place.height + pad * 2}
+      rx={14}
+    />
+  );
+}
+
+function boxClass(base: string, lit: StageHighlight['tone'] | undefined): string {
+  return lit ? `${base} is-lit` : base;
 }
 
 function describe(state: SimState, servers: WorkNode[]): string {
@@ -169,18 +244,22 @@ function ServerBox({
   node,
   place,
   status,
+  lit,
+  ...pointer
 }: {
   node: WorkNode;
   place: BoxPlace;
   status: NodeStatus;
-}) {
+  lit: StageHighlight['tone'] | undefined;
+} & PointerHandlers) {
   const { x, top, width, height, compact } = place;
   const look = boxLook(node, status);
   const inner = x + 12;
   const barWidth = width - 24;
   const line = compact ? { name: 22, state: 42, bar: 52 } : { name: 24, state: 48, bar: 60 };
   return (
-    <g className={`flow-box flow-box--${look}`}>
+    <g className={boxClass(`flow-box flow-box--${look}`, lit)} {...pointer}>
+      {lit && <Halo place={place} tone={lit} />}
       <rect className="flow-box-frame" x={x} y={top} width={width} height={height} rx={10} />
       <text className="flow-box-name" x={inner} y={top + line.name}>
         {node.label}
@@ -231,17 +310,21 @@ function RouterBox({
   node,
   place,
   state,
+  lit,
+  ...pointer
 }: {
   node: LoadBalancerNode;
   place: BoxPlace;
   state: SimState;
-}) {
+  lit: StageHighlight['tone'] | undefined;
+} & PointerHandlers) {
   const { x, top, width, height } = place;
   const targets = state.world.edges.filter((edge) => edge.from === node.id);
   const sending = targets.filter((edge) => (state.edges[edge.id]?.rate ?? 0) > 0).length;
   const inner = x + 10;
   return (
-    <g className="flow-box flow-box--router">
+    <g className={boxClass('flow-box flow-box--router', lit)} {...pointer}>
+      {lit && <Halo place={place} tone={lit} />}
       <rect className="flow-box-frame" x={x} y={top} width={width} height={height} rx={10} />
       <text className="flow-box-name flow-box-name--small" x={inner} y={top + 22}>
         {node.label}

@@ -37,3 +37,16 @@ test('a third server gives the spare that survives a kill', async ({ page }) => 
   await expect(stage.getByText('sends to 2 of 3')).toBeVisible({ timeout: 10_000 });
   await expect(stage.getByText('! OVERLOADED')).toHaveCount(0);
 });
+
+test('a tradeoff row lights the boxes it is about', async ({ page }) => {
+  await page.goto('/#/learn/load-balancer');
+  const stage = page.locator('.flow-stage');
+  await page.locator('.tradeoff-row--breaksNext').hover();
+  // Breaks next is the spare: every server lights, the balancer does not.
+  await expect(stage.locator('.flow-box--router.is-lit')).toHaveCount(0);
+  await expect(stage.locator('.flow-box.is-lit')).toHaveCount(2);
+  await page.locator('.tradeoff-row--fixes').hover();
+  await expect(stage.locator('.flow-box--router.is-lit')).toHaveCount(1);
+  await page.locator('.tradeoff-row--cost').hover();
+  await expect(stage.locator('.is-lit')).toHaveCount(0);
+});
