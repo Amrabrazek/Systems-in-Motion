@@ -12,7 +12,7 @@ import {
 } from '../../engine';
 import { healthText, lookText } from './health';
 import { whyForState, whyLine, whyText } from './why';
-import { balanced, oneServer } from './worlds.fixture';
+import { balanced, cached, oneServer } from './worlds.fixture';
 
 const DT = 0.05;
 
@@ -168,5 +168,50 @@ describe('box look', () => {
   it('a killed box reads as down, with a symbol', () => {
     expect(lookText('down')).toBe('✕ DOWN');
     expect(lookText('warn')).toBe('~ BUSY');
+  });
+});
+
+describe('why line with a cache and a database (topic 3)', () => {
+  const run = (world: World, seconds: number, actions: Action[] = []) => {
+    let state: SimState = step(createState(world), actions, DT);
+    for (let i = 1; i < seconds / DT; i++) state = step(state, [], DT);
+    return state;
+  };
+
+  it('without a cache, names the database as the limit', () => {
+    const why = whyForState(run(cached(1000, false), 10));
+    expect(whyText(why?.parts ?? [])).toMatch(
+      /^The database is \d+% busy and the waiting line is full/,
+    );
+    expect(why?.look).toBe('bad');
+  });
+
+  it('a cold cache says it is warming up and most requests still reach the database', () => {
+    const why = whyForState(run(cached(1000), 2));
+    expect(whyText(why?.parts ?? [])).toMatch(
+      /^The cache is warming up and answers only \d+% from memory, so most requests still reach the database\. The database is/,
+    );
+  });
+
+  it('a warm cache says how much it answers', () => {
+    const why = whyForState(run(cached(1000), 60));
+    expect(whyText(why?.parts ?? [])).toMatch(/^The cache answers 75% from memory\. /);
+    expect(why?.look).toBe('ok');
+  });
+
+  it('a dead cache comes first: everything goes on to the database', () => {
+    const state = run(cached(1000), 60);
+    const dead = step(state, [{ type: 'killNode', nodeId: 'cache' }], DT);
+    const why = whyForState(dead);
+    expect(whyText(why?.parts ?? [])).toMatch(
+      /^The cache is down, so every request goes on to the database\. /,
+    );
+    expect(why?.look).toBe('bad'); // the database takes it all at once
+  });
+
+  it('a dead cache with a database that copes shows the down pill', () => {
+    const state = run(cached(200), 60);
+    const why = whyForState(step(state, [{ type: 'killNode', nodeId: 'cache' }], DT));
+    expect(why?.look).toBe('down');
   });
 });

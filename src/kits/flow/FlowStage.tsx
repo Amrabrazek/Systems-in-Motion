@@ -1,5 +1,6 @@
 import type { PointerEvent, ReactNode } from 'react';
 import type {
+  CacheNode,
   LoadBalancerNode,
   NodeStatus,
   SimNode,
@@ -7,9 +8,9 @@ import type {
   UsersNode,
   WorkNode,
 } from '../../engine';
-import { boxLook, lookText } from './health';
+import { boxLook, cacheLook, cacheWords, lookText } from './health';
 import { pointAfterTap, type StageHighlight } from './highlight';
-import { stageLayout, type BoxPlace, type StageLayout } from './layout';
+import { hasWaitingLine, stageLayout, type BoxPlace, type StageLayout } from './layout';
 import { peopleShown, slotsFilled, STAGE } from './stageMath';
 import './flow.css';
 
@@ -38,14 +39,14 @@ export function FlowStage({
   if (!users) return null;
   const layout = stageLayout(world);
   const byId = new Map<string, SimNode>(world.nodes.map((node) => [node.id, node]));
-  const servers = world.nodes.filter((node): node is WorkNode => node.kind === 'server');
+  const workBoxes = world.nodes.filter((node): node is WorkNode => hasWaitingLine(node.kind));
 
   return (
     <svg
       className="flow-stage"
       viewBox={`0 0 ${layout.width} ${layout.height}`}
       role="img"
-      aria-label={describe(state, servers)}
+      aria-label={describe(state, workBoxes)}
     >
       <UsersGroup
         middle={layout.middle}
@@ -58,7 +59,7 @@ export function FlowStage({
         const [[x1, y1], [x2, y2]] = [path.from, path.to];
         return <line key={edge.id} className="flow-edge" x1={x1} y1={y1} x2={x2} y2={y2} />;
       })}
-      {servers.map((node) => {
+      {workBoxes.map((node) => {
         const place = layout.boxes[node.id];
         const status = state.nodes[node.id];
         if (!place || !status) return null;
@@ -83,7 +84,19 @@ export function FlowStage({
             />
           );
         }
-        if (node.kind === 'server') {
+        if (node.kind === 'cache') {
+          return (
+            <CacheBox
+              key={node.id}
+              node={node}
+              place={place}
+              state={state}
+              lit={lit}
+              {...pointer}
+            />
+          );
+        }
+        if (node.kind === 'server' || node.kind === 'database') {
           return (
             <ServerBox
               key={node.id}
@@ -145,7 +158,33 @@ function boxClass(base: string, lit: StageHighlight['tone'] | undefined): string
   return lit ? `${base} is-lit` : base;
 }
 
-function describe(state: SimState, servers: WorkNode[]): string {
+function describe(state: SimState, workBoxes: WorkNode[]): string {
+  const servers = workBoxes.filter((node) => node.kind === 'server');
+  const rest = describeBehindServers(state, workBoxes);
+  return `${describeServers(state, servers)}${rest}`;
+}
+
+/** The cache and database part of the stage's spoken summary, or '' when there is none. */
+function describeBehindServers(state: SimState, workBoxes: WorkNode[]): string {
+  const caches = state.world.nodes.filter((node): node is CacheNode => node.kind === 'cache');
+  const sentences = caches.map((node) => {
+    const view = state.cacheView[node.id];
+    const look = cacheWords[cacheLook(node, view)].slice(2).toLowerCase();
+    if (!node.up) return ` The ${node.label.toLowerCase()} is down and passes every request on.`;
+    return ` The ${node.label.toLowerCase()} is ${look} and answers ${hitPercent(view?.hitRate)} from memory.`;
+  });
+  for (const node of workBoxes.filter((box) => box.kind === 'database')) {
+    const status = state.nodes[node.id];
+    if (!status) continue;
+    const look = lookText(boxLook(node, status)).slice(2).toLowerCase();
+    sentences.push(` The ${node.label.toLowerCase()} is ${look}.`);
+  }
+  return sentences.join('');
+}
+
+const hitPercent = (hitRate = 0) => `${Math.round(hitRate * 100)}%`;
+
+function describeServers(state: SimState, servers: WorkNode[]): string {
   const users = `${format(state.world.traffic.users)} users send requests to`;
   if (servers.length === 1) {
     const [server] = servers;
@@ -336,6 +375,69 @@ function RouterBox({
       )}
       <text className="flow-box-note" x={inner} y={top + 60}>
         sends to {sending} of {targets.length}
+      </text>
+    </g>
+  );
+}
+
+/**
+ * A cache has no capacity or line (ADR 0014). Its look says how full it is (warm, warming up,
+ * down), and the bar shows the share of requests it answers from memory.
+ */
+function CacheBox({
+  node,
+  place,
+  state,
+  lit,
+  ...pointer
+}: {
+  node: CacheNode;
+  place: BoxPlace;
+  state: SimState;
+  lit: StageHighlight['tone'] | undefined;
+} & PointerHandlers) {
+  const { x, top, width, height } = place;
+  const hitRate = state.cacheView[node.id]?.hitRate ?? 0;
+  const look = cacheLook(node, state.cacheView[node.id]);
+  const inner = x + 12;
+  const barWidth = width - 24;
+  return (
+    <g className={boxClass(`flow-box flow-box--${look}`, lit)} {...pointer}>
+      {lit && <Halo place={place} tone={lit} />}
+      <rect className="flow-box-frame" x={x} y={top} width={width} height={height} rx={10} />
+      <text className="flow-box-name" x={inner} y={top + 24}>
+        {node.label}
+      </text>
+      {node.awsTag && (
+        <text className="flow-box-aws" x={x + width - 10} y={top + 24} textAnchor="end">
+          {node.awsTag}
+        </text>
+      )}
+      <text className="flow-box-state" x={inner} y={top + 46}>
+        {cacheWords[look]}
+      </text>
+      {look !== 'down' && (
+        <>
+          <rect
+            className="flow-box-bar"
+            x={inner}
+            y={top + 56}
+            width={barWidth}
+            height={6}
+            rx={3}
+          />
+          <rect
+            className="flow-box-bar-fill"
+            x={inner}
+            y={top + 56}
+            width={barWidth * Math.min(hitRate, 1)}
+            height={6}
+            rx={3}
+          />
+        </>
+      )}
+      <text className="flow-box-note" x={inner} y={top + 78}>
+        {look === 'down' ? 'passes every request on' : `answers ${hitPercent(hitRate)} from memory`}
       </text>
     </g>
   );

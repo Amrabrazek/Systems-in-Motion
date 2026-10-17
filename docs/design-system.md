@@ -92,6 +92,11 @@ The parts every topic reuses. Build them once in `src/ui/shared/` or the Flow ki
 - Overloaded boxes pulse gently (opacity 1 → 0.55, ~1s). No pulse with reduced motion.
 - A killed box (M2+): `--color-border` line, dashed, no fill, label `✕ DOWN`, no busy bar. Its why-line pill is `.pill--down` (muted text, dashed outline).
 - A router box (load balancer): `--color-text-muted` line, `--color-surface` fill, no health color or bar (it does no work, ADR 0011). Shows "sends to N of M".
+- A database box (topic 3) is drawn like a server: health color, busy bar, its own waiting line.
+- A cache box (topic 3, ADR 0014) has no waiting line or busy %. Its state says how full it is:
+  `✓ WARM`, `~ WARMING UP` (after a start or revive, ok / warn colors) or `✕ DOWN` (dashed, like a
+  killed box). The bar shows the share answered from memory, with "answers N% from memory" under it.
+  A hit dot turns green and stops inside the cache; a miss goes on to the database.
 - Placement comes from the graph, one column per hop (ADR 0012). Three or more boxes in a column go compact (no note line).
 
 ### 2. Request dot

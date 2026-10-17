@@ -1,12 +1,13 @@
 import type { SimEdge, SimState } from '../../engine';
-import { stageLayout, type BoxPlace, type Point, type StageLayout } from './layout';
+import { hasWaitingLine, stageLayout, type BoxPlace, type Point, type StageLayout } from './layout';
 
 /**
  * Dots are a picture of the engine's rates, not the truth (ADR 0002). Each frame we spawn a few
  * dots in proportion to the request rate and move them edge by edge. At a fork (the load
  * balancer) a dot picks its next edge with the odds the engine's edge rates give, so while the
  * LB hasn't noticed a dead server, dots still go there. A dot reaching a server's waiting line
- * is turned away with the same odds that server drops requests.
+ * is turned away with the same odds that server drops requests. A dot reaching a cache is a hit
+ * with the cache's hit rate: it turns green and stops there; a miss goes on (ADR 0014).
  */
 export type DotFate = 'flowing' | 'answered' | 'dropped';
 
@@ -129,7 +130,7 @@ export function updateDots(field: DotField, state: SimState, random: () => numbe
 function oddsByBox(state: SimState): Map<string, BoxOdds> {
   const odds = new Map<string, BoxOdds>();
   for (const node of state.world.nodes) {
-    if (node.kind !== 'server') continue;
+    if (node.kind !== 'server' && node.kind !== 'database') continue;
     const status = state.nodes[node.id];
     if (!status) continue;
     odds.set(node.id, {
@@ -166,15 +167,19 @@ function legEnds(dot: Dot, frame: Frame): [Point, Point] | undefined {
   const box = layout.boxes[dot.at];
   if (!box) return undefined;
   if (dot.leg === 'queue') return [box.entry, box.door];
-  if (dot.leg === 'inside') return [box.door, insideEnd(box, frame)];
+  if (dot.leg === 'inside') return [box.door, insideEnd(box, dot, frame)];
   return [center(box), [layout.width + OFF_STAGE, box.centerY]];
 }
 
 const center = (box: BoxPlace): Point => [box.x + box.width / 2, box.centerY];
 
-/** A server that answers stops at its centre; anything that forwards goes out its right side. */
-function insideEnd(box: BoxPlace, frame: Frame): Point {
-  return box.kind === 'server' && !frame.outgoing.has(box.id) ? center(box) : box.exit;
+/**
+ * A last box that answers stops at its centre, and so does a cache hit; anything that
+ * forwards goes out its right side.
+ */
+function insideEnd(box: BoxPlace, dot: Dot, frame: Frame): Point {
+  const lastBox = hasWaitingLine(box.kind) && !frame.outgoing.has(box.id);
+  return lastBox || dot.fate === 'answered' ? center(box) : box.exit;
 }
 
 function moveDot(dot: Dot, dt: number, frame: Frame): Dot | undefined {
@@ -218,6 +223,10 @@ function nextLeg(dot: Dot, frame: Frame): Dot | undefined {
     const box = edge ? frame.layout.boxes[edge.to] : undefined;
     if (!edge || !box) return undefined;
     if (box.kind === 'loadBalancer') return { ...fresh, leg: 'inside', at: box.id };
+    if (box.kind === 'cache') {
+      const hit = frame.random() < (frame.state.cacheView[box.id]?.hitRate ?? 0);
+      return { ...fresh, leg: 'inside', at: box.id, fate: hit ? 'answered' : 'flowing' };
+    }
     if (frame.random() < (frame.odds.get(box.id)?.dropOdds ?? 0)) {
       const [x, y] = box.entry;
       return { ...fresh, x, y, at: box.id, fate: 'dropped', fallSpeed: LAUNCH_SPEED, age: 0 };
@@ -227,7 +236,8 @@ function nextLeg(dot: Dot, frame: Frame): Dot | undefined {
 
   if (dot.leg === 'queue') return { ...fresh, leg: 'inside' };
 
-  // Finished the inside of a box: forward it, or answer it.
+  // Finished the inside of a box: a cache hit ends here; otherwise forward it, or answer it.
+  if (dot.fate === 'answered') return undefined;
   const forward = pickEdge(frame, dot.at);
   if (forward) return { ...fresh, leg: 'edge', at: forward.id };
   return { ...fresh, leg: 'exit', fate: 'answered' };

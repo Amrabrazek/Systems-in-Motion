@@ -1,6 +1,6 @@
 // Small worlds for the Flow kit's tests. Not imported by app code.
 import { getNumber } from '../../data/numbers';
-import type { LoadBalancerNode, World, WorkNode } from '../../engine';
+import type { CacheNode, LoadBalancerNode, World, WorkNode } from '../../engine';
 
 const n = (id: string) => getNumber('teaching', id);
 
@@ -70,6 +70,48 @@ export function balanced(count: number, users: number): World {
     edges: [
       { id: 'users-lb', from: 'users', to: 'lb' },
       ...ids.map((id) => ({ id: `lb-${id}`, from: 'lb', to: id })),
+    ],
+  };
+}
+
+const database: WorkNode = {
+  id: 'db',
+  kind: 'database',
+  label: 'Database',
+  awsTag: 'RDS',
+  capacity: n('db.capacity'),
+  queueMax: n('db.queueMax'),
+  baseLatencyMs: n('db.baseLatencyMs'),
+  region: 'region-1',
+  zone: 'zone-a',
+  up: true,
+};
+
+const cache: CacheNode = {
+  id: 'cache',
+  kind: 'cache',
+  label: 'Cache',
+  awsTag: 'ElastiCache',
+  baseLatencyMs: n('cache.baseLatencyMs'),
+  ttlSeconds: n('cache.ttlSeconds'),
+  keyCount: n('cache.keyCount'),
+  region: 'region-1',
+  zone: 'zone-a',
+  up: true,
+};
+
+/** users → LB → Server A, Server B → [cache →] database: the topic 3 picture. */
+export function cached(users: number, withCache = true): World {
+  const world = balanced(2, users);
+  const next = withCache ? 'cache' : 'db';
+  return {
+    ...world,
+    nodes: [...world.nodes, ...(withCache ? [cache] : []), database],
+    edges: [
+      ...world.edges,
+      { id: 'a-next', from: 'a', to: next },
+      { id: 'b-next', from: 'b', to: next },
+      ...(withCache ? [{ id: 'cache-db', from: 'cache', to: 'db' }] : []),
     ],
   };
 }
