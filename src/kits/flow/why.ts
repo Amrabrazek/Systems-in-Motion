@@ -1,5 +1,5 @@
-import type { NodeStatus, SimState, WorkNode } from '../../engine';
-import type { BoxLook } from './health';
+import type { CacheNode, NodeStatus, SimState, WorkNode } from '../../engine';
+import { cacheLook, type BoxLook } from './health';
 
 /** A sentence split into plain and bold parts, so the UI can bold the key numbers. */
 export type WhyPart = { text: string; bold?: boolean };
@@ -83,13 +83,17 @@ export interface Why {
 }
 
 /**
- * The "why" line for a whole stage: finds the most urgent server and talks about it. A dead
- * server comes first, because it explains what the survivors are going through.
+ * The "why" line for a whole stage: finds the most urgent box (servers, and a database behind
+ * them) and talks about it. A dead server comes first, because it explains what the survivors
+ * are going through. A cache in front of the database says first what it is doing, because that
+ * explains the database's load (ADR 0014).
  */
 export function whyForState(state: SimState): Why | undefined {
   const servers = state.world.nodes.filter((node): node is WorkNode => node.kind === 'server');
+  const databases = state.world.nodes.filter((node): node is WorkNode => node.kind === 'database');
   const single = servers.length === 1;
-  const nameOf = (node: WorkNode) => (single ? `The ${node.label.toLowerCase()}` : node.label);
+  const nameOf = (node: WorkNode) =>
+    single || node.kind === 'database' ? `The ${node.label.toLowerCase()}` : node.label;
   const live = servers.filter((node) => node.up);
   const down = servers.filter((node) => !node.up);
 
@@ -123,11 +127,18 @@ export function whyForState(state: SimState): Why | undefined {
     };
   }
 
-  const worst = mostUrgent(live, state);
+  const worst = mostUrgent([...live, ...databases], state);
   const worstStatus = worst && state.nodes[worst.id];
   if (!worst || !worstStatus) return undefined;
-  const sentence = whyLine(worst, worstStatus, nameOf(worst));
-  if (down.length === 0) return { look: worstStatus.health, parts: sentence };
+  const sentence = [
+    ...cacheSaying(state, worstStatus),
+    ...whyLine(worst, worstStatus, nameOf(worst)),
+  ];
+  if (down.length === 0) {
+    const cacheDown = cachesOf(state).some((node) => !node.up);
+    const look = cacheDown && worstStatus.health !== 'bad' ? 'down' : worstStatus.health;
+    return { look, parts: sentence };
+  }
 
   const names = down.map(nameOf).join(' and ');
   return {
@@ -139,6 +150,39 @@ export function whyForState(state: SimState): Why | undefined {
       ...sentence,
     ],
   };
+}
+
+const cachesOf = (state: SimState) =>
+  state.world.nodes.filter((node): node is CacheNode => node.kind === 'cache');
+
+/**
+ * What the cache is doing, as the start of the why line: down (everything goes to the
+ * database), warming up (most still does), or how much it answers. Empty with no cache.
+ */
+function cacheSaying(state: SimState, worstStatus: NodeStatus): WhyPart[] {
+  const cache = cachesOf(state)[0];
+  if (!cache) return [];
+  const name = `The ${cache.label.toLowerCase()}`;
+  const view = state.cacheView[cache.id];
+  const share = `${Math.round((view?.hitRate ?? 0) * 100)}%`;
+  const look = cacheLook(cache, view);
+  if (look === 'down') {
+    return [
+      { text: `${name} is ` },
+      { text: 'down', bold: true },
+      { text: ', so every request goes on to the database. ' },
+    ];
+  }
+  if (look === 'warn' && worstStatus.health !== 'ok') {
+    return [
+      { text: `${name} is ` },
+      { text: 'warming up', bold: true },
+      { text: ' and answers only ' },
+      { text: share, bold: true },
+      { text: ' from memory, so most requests still reach the database. ' },
+    ];
+  }
+  return [{ text: `${name} answers ` }, { text: share, bold: true }, { text: ' from memory. ' }];
 }
 
 /** Share of a load balancer's traffic that goes to this box: > 0 means it still believes in it. */

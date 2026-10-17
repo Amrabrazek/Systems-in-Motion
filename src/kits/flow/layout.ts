@@ -3,10 +3,15 @@ import { STAGE } from './stageMath';
 
 export type Point = readonly [x: number, y: number];
 
+type BoxNode = Exclude<SimNode, { kind: 'users' }>;
+
+/** Boxes that do work (servers, databases) have a waiting line; routers and caches don't. */
+export const hasWaitingLine = (kind: SimNode['kind']) => kind === 'server' || kind === 'database';
+
 /** Where one box sits. `entry` is where its incoming edges end; `exit` where outgoing ones start. */
 export interface BoxPlace {
   id: string;
-  kind: 'server' | 'loadBalancer';
+  kind: BoxNode['kind'];
   column: number;
   x: number;
   top: number;
@@ -14,8 +19,8 @@ export interface BoxPlace {
   height: number;
   centerY: number;
   compact: boolean; // short box: three or more in a column
-  entry: Point; // servers: the start of the waiting line; routers: the left side
-  door: Point; // servers: the end of the waiting line; routers: same as entry
+  entry: Point; // work boxes: the start of the waiting line; routers and caches: the left side
+  door: Point; // work boxes: the end of the waiting line; routers and caches: same as entry
   exit: Point; // right side, where answered or forwarded requests leave
 }
 
@@ -28,8 +33,6 @@ export interface StageLayout {
   columns: string[][]; // box ids per column, users column (0) left out
   edges: Record<string, { from: Point; to: Point; fromUsers: boolean }>;
 }
-
-type BoxNode = Exclude<SimNode, { kind: 'users' }>;
 
 /**
  * Lay the stage out from the graph (ADR 0012): one column per hop from the users, boxes spread
@@ -115,10 +118,14 @@ function shapeOf(node: BoxNode, inColumn: number): Shape {
     const { width, height } = STAGE.router;
     return { kind: 'loadBalancer', width, height, reach: width, compact: false };
   }
+  if (node.kind === 'cache') {
+    const { width, height } = STAGE.cache;
+    return { kind: 'cache', width, height, reach: width, compact: false };
+  }
   const compact = inColumn > 2;
   const { width } = STAGE.box;
   return {
-    kind: 'server',
+    kind: node.kind,
     width,
     height: compact ? STAGE.box.compactHeight : STAGE.box.height,
     reach: width + STAGE.doorGap + STAGE.queue.track,
@@ -128,8 +135,9 @@ function shapeOf(node: BoxNode, inColumn: number): Shape {
 
 function place(id: string, shape: Shape, column: number, x: number, top: number): BoxPlace {
   const centerY = top + shape.height / 2;
-  const door: Point = shape.kind === 'server' ? [x - STAGE.doorGap, centerY] : [x, centerY];
-  const entry: Point = shape.kind === 'server' ? [door[0] - STAGE.queue.track, centerY] : door;
+  const lined = hasWaitingLine(shape.kind);
+  const door: Point = lined ? [x - STAGE.doorGap, centerY] : [x, centerY];
+  const entry: Point = lined ? [door[0] - STAGE.queue.track, centerY] : door;
   return {
     id,
     kind: shape.kind,

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { World } from '../../engine';
 import { layoutColumns, stageLayout } from './layout';
 import { STAGE } from './stageMath';
-import { balanced, oneServer, server } from './worlds.fixture';
+import { balanced, cached, oneServer, server } from './worlds.fixture';
 
 describe('stage layout from the graph (ADR 0012)', () => {
   it('one server sits exactly where M1 drew it', () => {
@@ -94,5 +94,25 @@ describe('stage layout from the graph (ADR 0012)', () => {
   it('works the layout out once per world', () => {
     const world = balanced(2, 100);
     expect(stageLayout(world)).toBe(stageLayout(world));
+  });
+});
+
+describe('stage layout with a cache and a database (topic 3)', () => {
+  const layout = layoutColumns(cached(1000));
+
+  it('puts the cache after the servers and the database last', () => {
+    expect(layout.columns).toEqual([['lb'], ['a', 'b'], ['cache'], ['db']]);
+  });
+
+  it('gives the database a waiting line, and the cache none', () => {
+    const { cache, db } = layout.boxes;
+    expect(cache?.entry).toEqual(cache?.door);
+    expect(db && db.entry[0] < db.door[0]).toBe(true);
+  });
+
+  it('keeps every box inside the stage', () => {
+    for (const box of Object.values(layout.boxes)) {
+      expect(box.x + box.width).toBeLessThanOrEqual(layout.width);
+    }
   });
 });

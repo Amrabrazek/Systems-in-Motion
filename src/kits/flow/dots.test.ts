@@ -3,7 +3,7 @@ import { createState, step, type Action, type SimState, type World } from '../..
 import { dotsPerSecond, emptyField, requestsPerDot, updateDots, type DotField } from './dots';
 import { stageLayout } from './layout';
 import { STAGE } from './stageMath';
-import { balanced, oneServer } from './worlds.fixture';
+import { balanced, cached, oneServer } from './worlds.fixture';
 
 /** A repeatable stand-in for Math.random (mulberry32: even enough for split counts). */
 function seeded(seed: number) {
@@ -21,13 +21,14 @@ interface Seen {
   dropped: number;
   queuedAt: Record<string, number>; // dots that reached each server's waiting line
   droppedAt: Record<string, number>;
+  answeredAt: Record<string, number>; // where answered dots were when they turned green
 }
 
 function run(world: World, seconds: number, actionsAt: Record<number, Action[]> = {}) {
   let state: SimState = createState(world);
   let field: DotField = emptyField();
   const random = seeded(7);
-  const seen: Seen = { answered: 0, dropped: 0, queuedAt: {}, droppedAt: {} };
+  const seen: Seen = { answered: 0, dropped: 0, queuedAt: {}, droppedAt: {}, answeredAt: {} };
   const counted = new Set<string>();
   for (let i = 0; i < seconds / 0.05; i++) {
     state = step(state, actionsAt[i] ?? [], 0.05);
@@ -37,7 +38,10 @@ function run(world: World, seconds: number, actionsAt: Record<number, Action[]> 
       const key = `${dot.id}:${dot.fate}:${dot.leg}:${dot.at}`;
       if (counted.has(key)) continue;
       counted.add(key);
-      if (dot.fate === 'answered') seen.answered++;
+      if (dot.fate === 'answered') {
+        seen.answered++;
+        seen.answeredAt[dot.at] = (seen.answeredAt[dot.at] ?? 0) + 1;
+      }
       if (dot.fate === 'dropped') {
         seen.dropped++;
         seen.droppedAt[dot.at] = (seen.droppedAt[dot.at] ?? 0) + 1;
@@ -141,5 +145,28 @@ describe('dots across a load balancer', () => {
       if (dot.fate === 'dropped') continue;
       expect(['users-lb', 'lb', 'lb-a', 'a']).toContain(dot.at);
     }
+  });
+});
+
+describe('dots through a cache (topic 3)', () => {
+  it('a warm cache answers most dots itself, and only misses reach the database', () => {
+    const { seen } = run(cached(1000), 40);
+    const atCache = seen.answeredAt.cache ?? 0;
+    const atDatabase = seen.queuedAt.db ?? 0;
+    expect(atCache).toBeGreaterThan(atDatabase);
+  });
+
+  it('a dead cache answers nothing: every dot goes on to the database', () => {
+    const kill = { 0: [{ type: 'killNode' as const, nodeId: 'cache' }] };
+    const { seen } = run(cached(1000), 20, kill);
+    expect(seen.answeredAt.cache ?? 0).toBe(0);
+    expect(seen.queuedAt.db ?? 0).toBeGreaterThan(50);
+  });
+
+  it('keeps every live dot on the stage', () => {
+    const world = cached(1000);
+    const { field } = run(world, 20);
+    const { width } = stageLayout(world);
+    for (const dot of field.dots) expect(dot.x).toBeLessThanOrEqual(width + 10);
   });
 });

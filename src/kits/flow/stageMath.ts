@@ -13,6 +13,7 @@ export const STAGE = {
   doorGap: 8, // the waiting line stops this far before the box
   box: { width: 160, height: 104, compactHeight: 72, gap: 24 },
   router: { width: 124, height: 72 },
+  cache: { width: 184, height: 88 }, // no waiting line: it answers from memory or passes on
   edge: { min: 40, fan: 80 }, // shortest edge; longer when it fans out to several boxes
 } as const;
 
