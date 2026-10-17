@@ -29,6 +29,14 @@ export const topics: TopicInfo[] = [
     Page: lazy(() => import('./load-balancer/page')),
   },
   {
+    id: 'cache',
+    title: 'Cache',
+    kit: 'flow',
+    page: 'level',
+    status: 'building',
+    Page: lazy(() => import('./cache/page')),
+  },
+  {
     id: 'how-systems-scale',
     title: 'How systems scale',
     kit: 'none',

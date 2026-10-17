@@ -3,10 +3,10 @@
 ## Where we are (updated by every PR)
 
 ```
-Done:  M1 one box breaks · M2 load balancer + kill · M3 predict → reveal · "How systems scale" explainer
+Done:  M1 one box breaks · M2 load balancer + kill · M3 predict → reveal · "How systems scale" explainer · topic 3 Cache
 Now:   tradeoff strip in the stage panel (explainer + Load balancer done; Flow kit box highlight next)
-Next:  topic 3 Cache: step 2 Flow kit (draw cache + database) in review ─▶ step 3 page
-Then:  M4 Design v0
+Next:  M4 Design v0 (first: decide Cache 2b, a predict question "double the users: does DB load double?")
+Then:  the next Flow topics (roadmap order below)
 ```
 
 Rule: every PR that finishes or starts something updates this block and the **Status** column below,
@@ -46,7 +46,7 @@ Page types: **Level** = Play mode (predict → break → fix), **Lab** = A vs B 
 |---|---|---|---|---|---|---|
 | 1 | One server | Level | Flow | single box (M1) | Foundation | ✅ done (M1, M3) |
 | 2 | Load balancer (+ kill server, kill AZ) | Level | Flow | multi-hop, split, `up` flag | 1 | ✅ done (M2; tradeoff strip) |
-| 3 | Cache | Level | Flow | cache + database nodes, hit rate from TTL ([plan](milestones/topic-3-cache.md)) | 2 | 🛠 engine done; Flow kit (step 2) |
+| 3 | Cache | Level | Flow | cache + database nodes, hit rate from TTL ([plan](milestones/topic-3-cache.md)) | 2 | ✅ live at `#/learn/cache` (optional 2b predict question: decide) |
 | 4 | Autoscaling | Level | Flow | capacity over time, boot lag | 2 | |
 | 5 | Read replicas | Level | Flow | read/write split | 2 | |
 | 6 | Queues & async jobs | Level | Flow | async node (user doesn't wait) | 2 | |
@@ -90,7 +90,7 @@ The rest of the topic list is the queue, not a promise.
 ```
 M1 One box breaks  ─▶ M2 Load balancer + kill ─▶ M3 Level 1 (Play) ─▶ M4 Design v0 ─▶ v1
    (shared engine)     (multi-hop, numbers data)                        (builder, breaking point, share)
-   ✅ done              ✅ done                     ✅ done (light)        ○ after Cache
+   ✅ done              ✅ done                     ✅ done (light)        ○ next
 ```
 
 ## How parallel work stays safe

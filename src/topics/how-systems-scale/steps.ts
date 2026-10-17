@@ -132,7 +132,7 @@ export const steps: ScaleStep[] = [
       edges: cached,
       limit: { part: 'db', word: 'full' },
     },
-    live: { comingSoon: 'Live level coming: Cache (topic 3).' },
+    live: { topicId: 'cache', label: 'Kill the cache' },
   },
   {
     id: 'read-replicas',
