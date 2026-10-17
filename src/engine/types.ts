@@ -28,12 +28,13 @@ export interface UsersNode {
 }
 
 /**
- * A box that does work. Numbers are whole entries, not bare values, so the UI can show the
- * tag and source beside each one without a second lookup.
+ * A box that does work: an app server, or the database behind it (same math, ADR 0014).
+ * Numbers are whole entries, not bare values, so the UI can show the tag and source beside
+ * each one without a second lookup.
  */
 export interface WorkNode {
   id: string;
-  kind: 'server';
+  kind: 'server' | 'database';
   label: string;
   awsTag?: string; // small label, e.g. "EC2"
   capacity: NumberEntry; // requests/s it can finish
@@ -59,7 +60,25 @@ export interface LoadBalancerNode {
   zone: string;
 }
 
-export type SimNode = UsersNode | WorkNode | LoadBalancerNode;
+/**
+ * Keeps popular answers in memory (ADR 0014). Does no work, so it has no capacity or queue:
+ * it answers hits itself and passes misses on to the next box. Its hit rate comes from how
+ * long it keeps an answer (`ttlSeconds`) and how many different things users ask for.
+ */
+export interface CacheNode {
+  id: string;
+  kind: 'cache';
+  label: string;
+  awsTag?: string; // e.g. "ElastiCache"
+  baseLatencyMs: NumberEntry; // time to answer from memory
+  ttlSeconds: NumberEntry; // how long a kept answer is used before it's fetched again
+  keyCount: NumberEntry; // how many different things users ask for
+  region: string;
+  zone: string;
+  up: boolean; // false = killed; a dead cache passes every request on
+}
+
+export type SimNode = UsersNode | WorkNode | LoadBalancerNode | CacheNode;
 
 export interface SimEdge {
   id: string;
@@ -125,6 +144,15 @@ export interface TargetView {
   mismatchSeconds: number; // how long reality has differed from `seenUp`; resets when they agree
 }
 
+/**
+ * What one cache holds right now. `warmth` is the share of keys it has already fetched once:
+ * 0 after a (re)start, rising toward 1 as requests arrive (ADR 0014).
+ */
+export interface CacheView {
+  warmth: number;
+  hitRate: number; // 0..1, share of incoming requests answered from memory this step
+}
+
 export interface SimState {
   time: number; // seconds of sim time
   world: World;
@@ -132,6 +160,7 @@ export interface SimState {
   nodes: Record<string, NodeStatus>;
   edges: Record<string, { rate: number }>; // the UI samples dots from this
   lbView: Record<string, Record<string, TargetView>>; // load balancer id → target id → belief
+  cacheView: Record<string, CacheView>; // cache id → how warm it is
   totals: Totals; // raw, this step
   smoothed: Totals; // EMA of totals; what charts draw (docs/engine.md, Smoothing)
 }

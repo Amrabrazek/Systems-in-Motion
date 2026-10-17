@@ -3,8 +3,9 @@
 ## Where we are (updated by every PR)
 
 ```
-Done:  M1 one box breaks · M2 load balancer + kill · M3 predict → reveal · "How systems scale" explainer · tradeoff strip + box links
-Next:  topic 3 Cache (plan agreed, ADR 0014) ─▶ step 1 engine
+Done:  M1 one box breaks · M2 load balancer + kill · M3 predict → reveal · "How systems scale" explainer
+Now:   tradeoff strip in the stage panel (explainer + Load balancer done; Flow kit box highlight next)
+Next:  topic 3 Cache: step 1 engine (cache + database) in review ─▶ step 2 Flow kit
 Then:  M4 Design v0
 ```
 
@@ -44,8 +45,8 @@ Page types: **Level** = Play mode (predict → break → fix), **Lab** = A vs B 
 | # | Topic | Page | Kit | Engine/kit feature it adds | Can start after | Status |
 |---|---|---|---|---|---|---|
 | 1 | One server | Level | Flow | single box (M1) | Foundation | ✅ done (M1, M3) |
-| 2 | Load balancer (+ kill server, kill AZ) | Level | Flow | multi-hop, split, `up` flag | 1 | ✅ done (M2; tradeoff strip + links) |
-| 3 | Cache | Level | Flow | cache + database nodes, hit rate from TTL ([plan](milestones/topic-3-cache.md)) | 2 | 🛠 plan agreed |
+| 2 | Load balancer (+ kill server, kill AZ) | Level | Flow | multi-hop, split, `up` flag | 1 | ✅ done (M2; tradeoff strip) |
+| 3 | Cache | Level | Flow | cache + database nodes, hit rate from TTL ([plan](milestones/topic-3-cache.md)) | 2 | 🛠 engine (step 1) |
 | 4 | Autoscaling | Level | Flow | capacity over time, boot lag | 2 | |
 | 5 | Read replicas | Level | Flow | read/write split | 2 | |
 | 6 | Queues & async jobs | Level | Flow | async node (user doesn't wait) | 2 | |
