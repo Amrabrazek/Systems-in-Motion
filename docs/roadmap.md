@@ -7,6 +7,7 @@ Done:  M1 one box breaks · M2 load balancer + kill · M3 predict → reveal · 
 Now:   tradeoff strip in the stage panel (explainer + Load balancer done; Flow kit box highlight next)
 Next:  M4 Design v0 (first: decide Cache 2b, a predict question "double the users: does DB load double?")
 Then:  the next Flow topics (roadmap order below)
+Queued: traffic flood + rate limiting Level (topic-backlog.md #6)
 ```
 
 Rule: every PR that finishes or starts something updates this block and the **Status** column below,
@@ -60,7 +61,7 @@ Page types: **Level** = Play mode (predict → break → fix), **Lab** = A vs B 
 | 14 | Replication lag | Lab | Time & copies | builds the kit | Foundation | |
 | 15 | Exact data (money, idempotency) | Lab | Time & copies | retries + duplicate detection | 14 | |
 | 16 | Consistency & CAP | Lab | Time & copies | partitions | 14 | |
-| 17 | Rate limiting | Lab | Algorithm | builds the kit | Foundation | |
+| 17 | Rate limiting | Lab | Algorithm | builds the kit | Foundation | flood Level queued ([backlog #6](topic-backlog.md)) |
 | 18 | Cache eviction (LRU vs LFU) | Lab | Algorithm | eviction policies | 17 | |
 | 19 | LB algorithms | Lab | Algorithm (+ Flow) | per-server speed | 2, 17 | |
 | 20 | Outside services, Cost | Explainer | none | none | anytime | |
