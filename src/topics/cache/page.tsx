@@ -114,7 +114,7 @@ export default function CachePage() {
                 className="button button--revive"
                 onClick={() => sim.dispatch({ type: 'reviveNode', nodeId: cache.id })}
               >
-                ↺ Revive the cache
+                ↺ Restart the cache (comes back empty)
               </button>
             ))}
           {cache && (
