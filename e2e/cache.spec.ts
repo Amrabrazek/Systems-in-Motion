@@ -17,6 +17,9 @@ test('a cache rescues the database until it dies', async ({ page }) => {
   await page.getByRole('button', { name: '✕ Kill the cache' }).click();
   await expect(stage.getByText('✕ DOWN').first()).toBeVisible();
   await expect(stage.getByText('! OVERLOADED').first()).toBeVisible({ timeout: 15_000 });
+
+  await page.getByRole('button', { name: '↺ Restart the cache (comes back empty)' }).click();
+  await expect(stage.getByText('~ WARMING UP').first()).toBeVisible();
 });
 
 test('the tradeoff rows light the cache and the database', async ({ page }) => {
