@@ -14,6 +14,7 @@
 | [milestones/m2-load-balancer-kill.md](milestones/m2-load-balancer-kill.md) | Load balancer + kill a server, step by step (done) |
 | [milestones/m3-level-1-predict.md](milestones/m3-level-1-predict.md) | Level 1: predict → reveal (light Play mode) |
 | [milestones/topic-3-cache.md](milestones/topic-3-cache.md) | Topic 3 Cache: TTL, hit rate, cache down, cold start |
+| [milestones/m4-design-v0.md](milestones/m4-design-v0.md) | M4 Design v0: chain builder, own numbers, kill, breaking point, share link (plan) |
 | [decisions/](decisions/) | One short file per big decision (ADR) |
 
 Number tags used everywhere: **M** Measured · **R** Rule of thumb · **T** Teaching guess.

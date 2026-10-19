@@ -2,6 +2,8 @@
 
 For engineers: "will my design hold, where does it break first, and what does the fix cost?"
 
+v0 cut (what ships first): [milestones/m4-design-v0.md](milestones/m4-design-v0.md).
+
 ```
  build ──▶ set traffic ──▶ run ──▶ see bottleneck ──▶ change one thing ──▶ compare to before
    │                          │
