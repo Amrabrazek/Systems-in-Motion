@@ -1,6 +1,6 @@
 # M4: Design v0
 
-Status: **plan, waiting for Amr's OK** (2026-10-19). Model choices: [ADR 0015](../decisions/0015-design-v0-chain-spec.md).
+Status: **agreed with Amr 2026-10-19** (toggles in a fixed chain, not drag; Design before more Learn topics). Model choices: [ADR 0015](../decisions/0015-design-v0-chain-spec.md).
 Full v1 feature list: [design-mode.md](../design-mode.md). This doc cuts it down to v0.
 
 ## The question v0 answers
@@ -80,7 +80,7 @@ Steps 1 and 2 don't touch the same files and can run in parallel. 4 and 5 both e
 ```
 users = 100, 200, 400 …   until the design breaks      (doubling)
 then binary search between the last good and first bad (~10 more runs)
-each run: fresh state, steady users, run until warm (cache warm-up, LB settled), then check
+each run: fresh state, steady users, caches start warm, run 30 s (LB settled), then check
   BREAKS if  any box > 100% utilization      ← it will drop requests, even if the line hasn't filled yet
          or  errorRate > 1%                  ← design.breakErrorRate (T)
          or  avg latency > 1 s               ← ux.feelsSlowMs (R, already in teaching.ts)
@@ -89,7 +89,7 @@ report: users at break · first box past its limit · which rule fired
 
 Why utilization and not "wait for errors": a box at 101% fills its line slowly (150 places at +1 req/s
 ≈ 2.5 min), so a short run would miss it. Flow math tells us directly that it will break.
-Cost: ~20 runs × ~1,200 steps of a 6-box world ≈ milliseconds, so it runs on the main thread (no Web Worker).
+Cost: ~20 runs × ~600 steps of a 6-box world ≈ milliseconds, so it runs on the main thread (no Web Worker).
 
 ## Engine and spec tests first
 

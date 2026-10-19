@@ -5,8 +5,8 @@
 ```
 Done:  M1 one box breaks · M2 load balancer + kill · M3 predict → reveal · "How systems scale" explainer · topic 3 Cache
 Now:   tradeoff strip in the stage panel (explainer + Load balancer done; Flow kit box highlight next)
-       explainer reframed as "a common path" + "What's breaking?" picker (this PR)
-Next:  M4 Design v0, plan in review (milestones/m4-design-v0.md, ADR 0015). Cache 2b parked
+       M4 Design v0 (milestones/m4-design-v0.md): step 1 engine breaking point (this PR). Cache 2b parked
+Next:  M4 step 2 design spec + URL, then the page
 Then:  the next Flow topics (roadmap order below)
 ```
 
@@ -66,7 +66,7 @@ Page types: **Level** = Play mode (predict → break → fix), **Lab** = A vs B 
 | 19 | LB algorithms | Lab | Algorithm (+ Flow) | per-server speed | 2, 17 | |
 | 20 | Outside services, Cost | Explainer | none | none | anytime | |
 | E1 | How systems scale | Explainer | none (Stepper) | none | anytime | ✅ done (tradeoff strip + links + "What's breaking?" picker) |
-| D | Design mode | Tool | Flow | headless sweep, `users(t)`, URL encoding | 2 | v0 plan in review ([plan](milestones/m4-design-v0.md)) |
+| D | Design mode | Tool | Flow | headless sweep, `users(t)`, URL encoding | 2 | v0 building: step 1 engine breaking point ([plan](milestones/m4-design-v0.md)) |
 
 ## v1: the smallest version that serves both audiences
 
