@@ -27,3 +27,12 @@ test('stepping through how systems scale', async ({ page }) => {
   await page.getByRole('link', { name: /Try it live/ }).click();
   await expect(page).toHaveURL(/#\/learn\/load-balancer$/);
 });
+
+// The steps are a common path, not a rule: the picker jumps straight to the fitting step.
+test('jumping from what is breaking', async ({ page }) => {
+  await page.goto('/#/learn/how-systems-scale');
+  await page.getByRole('button', { name: 'Database reads are slow' }).click();
+  await page.getByRole('button', { name: 'Go to Read copies →' }).click();
+  await expect(page.locator('.scale-position')).toContainText('Read copies');
+  await expect(page.locator('.scale-note')).toContainText('without a cache');
+});

@@ -14,6 +14,11 @@ export interface ScaleStep {
   problem: string;
   /** The fix this step adds. The first step has none: it is where we start. */
   fix?: { name: string; awsTag?: string; card: TradeoffCard };
+  /**
+   * Where the order is a choice, or the idea links to another topic. The steps are a common
+   * path, not a rule, so a step that is often skipped or swapped says so here.
+   */
+  note?: { text: string; link?: { topicId: string; label: string } };
   diagram: Diagram;
   live: LiveLink;
 }
@@ -103,6 +108,7 @@ export const steps: ScaleStep[] = [
         breaksNext: 'Every server still uses the one database. Now it is the slowest part.',
       },
     },
+    note: { text: 'Many teams skip the bigger server and start here.' },
     diagram: {
       parts: [users, regionA, lb, servers, { id: 'db', label: 'Database' }],
       edges: [...balanced, edge('servers', 'db')],
@@ -127,6 +133,9 @@ export const steps: ScaleStep[] = [
         breaksNext: 'Reads the cache misses, and every write, still land on one database.',
       },
     },
+    note: {
+      text: 'Not a must-do first. If reads must always be fresh, read copies may fit better.',
+    },
     diagram: {
       parts: [users, regionA, lb, servers, cache, { id: 'db', label: 'Database' }],
       edges: cached,
@@ -149,6 +158,9 @@ export const steps: ScaleStep[] = [
         newRisk: 'Copies lag behind: a user may not see what they just saved.',
         breaksNext: 'Every write still goes to one main database. Write-heavy apps fill it up.',
       },
+    },
+    note: {
+      text: 'You can add read copies without a cache. The picture keeps the cache only because this path added it first.',
     },
     diagram: {
       parts: [users, regionA, lb, servers, cache, { id: 'db', label: 'Main database' }, replicas],
@@ -185,7 +197,7 @@ export const steps: ScaleStep[] = [
   {
     id: 'cdn',
     title: 'CDN',
-    move: 'Content delivery network',
+    move: 'Content delivery network · edge cache',
     problem: 'Far-away users wait for files that never change.',
     fix: {
       name: 'CDN for files',
@@ -199,6 +211,10 @@ export const steps: ScaleStep[] = [
         breaksNext:
           'Slow jobs, like sending email or resizing video, still hold a server while the user waits.',
       },
+    },
+    note: {
+      text: 'A CDN is a cache kept near users. It speeds up files only; live data still travels far (see Second region).',
+      link: { topicId: 'cache', label: 'How a cache works' },
     },
     diagram: {
       parts: [users, regionA, cdn, lb, servers, cache, shards, replicas],

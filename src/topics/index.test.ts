@@ -18,6 +18,7 @@ describe('topic registry', () => {
   it('only links explainer steps to topics that exist', () => {
     for (const step of scaleSteps) {
       if ('topicId' in step.live) expect(findTopic(step.live.topicId), step.id).toBeDefined();
+      if (step.note?.link) expect(findTopic(step.note.link.topicId), step.id).toBeDefined();
     }
   });
 });
