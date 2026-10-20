@@ -30,6 +30,18 @@ v0 cut (what ships first): [milestones/m4-design-v0.md](milestones/m4-design-v0.
 | Real $ cost | later | public pricing is cheap data, but regions and instance types add a lot of UI |
 | Measured numbers | later | cited benchmarks first (ADR 0009) |
 
+## The design spec (v0, ADR 0015)
+
+```
+DesignSpec ──specToWorld──▶ World        src/design/spec.ts
+   └── encodeSpec ⇄ decodeSpec ──▶ #/design?d=<base64url JSON>
+{ v: 1, users, loadBalancer, servers: { count 1–8, size small|big }, cache, overrides }
+```
+- `overrides` holds only the numbers you changed, one per role (every server shares it), tag **U**.
+- No load balancer ⇒ exactly one server: nothing would split the traffic.
+- Killed boxes aren't in the link: killing is something you do live, not part of the design.
+- A bad, old or hand-edited link is rejected whole; the page opens the default with a notice.
+
 ## Breaking point: how it works
 ```
 for users in 100, 200, 400 … (doubling, then binary search)
