@@ -100,7 +100,23 @@ servers ──all requests──▶ [cache] ──misses only──▶ [database
 - `throughput` counts cache hits as finished. End-to-end latency treats hits as paths that stop
   at the cache, so it is `cache + (1 − hitRate) × next hop`.
 
+## Breaking point (M4, ADR 0015)
+
+```
+double users from breakingPoint.startUsers ──▶ first that breaks ──▶ binary search back ──▶ answer
+each probe: fresh state, steady users, caches start warm, run breakingPoint.runSeconds headless
+```
+
+- `findBreakingPoint(world, options)` in `engine/breakingPoint.ts`. Every number comes in through
+  `options` (from `breakingPoint.*` in `teaching.ts`); the step size is the sim's, passed in.
+- A probe breaks if any box is past 100% busy (**capacity**), else if `errorRate` is over
+  `breakingPoint.maxErrorRate` (**errors**), else if average latency is over `ux.feelsSlowMs` (**latency**).
+  Capacity first: a box at 101% fills its line slowly, so waiting for errors would miss it.
+- It names the worst box for that reason. Search stops within `breakingPoint.precision` of the answer,
+  or at `breakingPoint.maxUsers` ("holds").
+- Caches start warm: the question is steady load. Cold start is the Cache topic's lesson (ADR 0014).
+- Assumes more users never make a design healthier, which holds in this flow math.
+
 ## Later (not M1)
 - Kill zone / region: set `up = false` on matching nodes; the LB notices after its health checks.
 - Traffic scripts: `users(t)` instead of a constant.
-- Headless runs for Design's breaking point: same `step()`, no drawing, many runs (ADR 0010).
