@@ -14,6 +14,7 @@ Effort: **S** 1 PR, content only · **M** 2–3 PRs on an existing kit · **L** 
 | 3 | Resilience pack | Levels | Flow + retries in engine | L | **v1.5** |
 | 4 | Event-driven systems | Level + Lab | Flow (async, pub/sub) + Time & copies | L | with topic 6, after topic 14 |
 | 5 | Data patterns pack | Explainer + Labs | Time & copies | L | after topic 14 builds the kit |
+| 6 | Traffic flood + rate limiting | Level | Flow + Algorithm | M | after topic 17 (Rate limiting Lab) builds the Algorithm kit |
 
 ### 1. How systems scale (Explainer hub)
 Rung-1 map: vertical → horizontal → cache → replicas → sharding → CDN → async → autoscaling →
@@ -50,6 +51,13 @@ Needs: Flow async node + topic with N subscribers (lag per consumer); Time & cop
 Saga, outbox, CQRS, event sourcing, leader election, consensus.
 Outbox/saga fit Time & copies: crash between "write DB" and "send event" → message lost; add outbox → not lost.
 Consensus (Raft) stays an Explainer at rung 1; The Secret Lives of Data already does it well, don't compete.
+
+### 6. Traffic flood + rate limiting
+Next to the resilience pack. Topic 17 (Lab) compares limiter algorithms; this is the Level that shows
+why you need one. A flood (bots, a scraper) hits the same servers as real users → everything red.
+Add a limiter → the extra requests get rejected (429 = "too many requests") → servers stay green.
+Tradeoff: some real users get blocked too. Flip: a per-client limit stops one heavy client, not a
+spread-out botnet. Needs one new "bad traffic" user group. Source: `research/topic-ideas.md`.
 
 ## Parked (outside this product)
 
