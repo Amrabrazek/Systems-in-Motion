@@ -12,11 +12,13 @@ import { NumberTag } from '../ui/shared/NumberTag';
 import { SimControls } from '../ui/shared/SimControls';
 import { UsersSlider } from '../ui/shared/UsersSlider';
 import { applyChange, keepLiveState, startBuilder, type BuilderChange } from './builder';
+import { NumbersPanel } from './NumbersPanel';
+import { nodeIdsFor, type PartId } from './numbers';
 import { MAX_SERVERS, MAX_USERS, defaultSpec, specToWorld } from './spec';
 import './page.css';
 
-// Design mode v0, step 3: build a chain, run it, kill parts (docs/milestones/m4-design-v0.md).
-// Your own numbers (step 4) and the breaking point + share link (step 5) come next.
+// Design mode v0: build a chain, use your own numbers, run it, kill parts
+// (docs/milestones/m4-design-v0.md). The breaking point + share link (step 5) come next.
 
 /** Design goes past Learn's 10,000 users: engineers size for real traffic. */
 const designUsersScale: LogScale = { min: 10, max: MAX_USERS, steps: 400 };
@@ -40,6 +42,7 @@ export default function DesignPage() {
     valueToPosition(designUsersScale, defaultSpec.users),
   );
   const snapshot = useSim(sim);
+  const [openPart, setOpenPart] = useState<PartId>('servers');
 
   useEffect(() => {
     sim.start();
@@ -52,6 +55,8 @@ export default function DesignPage() {
   const cache = cacheOf(state.world);
   const why = whyForState(state);
   const firstServer = servers[0];
+  // The boxes the open Numbers tab applies to light up, so you see what you're editing.
+  const highlight = { ids: new Set(nodeIdsFor(state.world, openPart)), tone: 'fix' as const };
 
   function change(next: BuilderChange) {
     const updated = applyChange(builder, next);
@@ -159,10 +164,11 @@ export default function DesignPage() {
             </span>
           </label>
         </section>
+        <NumbersPanel spec={spec} open={openPart} onOpen={setOpenPart} onChange={change} />
 
         <section className="panel stage-panel" aria-label="Live system">
           <div className="stage">
-            <FlowStage state={state} dots={<DotLayer sim={sim} />} />
+            <FlowStage state={state} dots={<DotLayer sim={sim} />} highlight={highlight} />
           </div>
           <div className="panel-row controls-row">
             <UsersSlider position={position} onChange={moveSlider} scale={designUsersScale} />

@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { createState, step, type WorkNode } from '../engine';
 import { applyChange, keepLiveState, startBuilder, type Builder } from './builder';
-import { MAX_SERVERS, MAX_USERS, defaultSpec, specToWorld } from './spec';
+import {
+  MAX_SERVERS,
+  MAX_USERS,
+  decodeSpec,
+  defaultSpec,
+  encodeSpec,
+  numberFor,
+  overrideProblem,
+  specToWorld,
+} from './spec';
 
 // M4 step 3: the Build panel's changes (docs/milestones/m4-design-v0.md).
 
@@ -47,6 +56,61 @@ describe('applyChange', () => {
     expect(applyChange(builder, { type: 'setLoadBalancer', on: true }).spec.servers.count).toBe(
       defaultSpec.servers.count,
     );
+  });
+});
+
+describe('your own numbers', () => {
+  const set = (builder: Builder, value: number | undefined) =>
+    applyChange(builder, { type: 'setOverride', key: 'server.capacity', value });
+
+  it('an edit is stored, tagged U, and reaches the world', () => {
+    const builder = set(start(), 120);
+    expect(builder.spec.overrides).toEqual({ 'server.capacity': 120 });
+    expect(numberFor(builder.spec, 'server.capacity')).toMatchObject({ value: 120, tag: 'U' });
+  });
+
+  it('reset, or typing the default back in, brings back the default with its own tag', () => {
+    const typed = set(start(), 120);
+    expect(set(typed, undefined).spec.overrides).toEqual({});
+    const defaultValue = numberFor(defaultSpec, 'server.capacity').value;
+    expect(set(typed, defaultValue).spec.overrides).toEqual({});
+    expect(numberFor(set(typed, defaultValue).spec, 'server.capacity').tag).toBe('T');
+  });
+
+  it('a value the link would reject is never stored', () => {
+    for (const bad of [-1, 0, Number.NaN, Number.POSITIVE_INFINITY]) {
+      expect(set(start(), bad).spec.overrides).toEqual({});
+    }
+  });
+
+  it('anything you can type survives the share link', () => {
+    const builder = applyChange(set(start(), 120), {
+      type: 'setOverride',
+      key: 'db.queueMax',
+      value: 0,
+    });
+    expect(decodeSpec(encodeSpec(builder.spec))).toEqual({ ok: true, spec: builder.spec });
+  });
+
+  it('picking a server size replaces a capacity you typed', () => {
+    const big = applyChange(set(start(), 120), { type: 'setServerSize', size: 'big' });
+    expect(big.spec.overrides).toEqual({});
+    expect(numberFor(big.spec, 'server.capacity').value).toBe(
+      numberFor({ ...defaultSpec, servers: { count: 1, size: 'big' } }, 'server.capacity').value,
+    );
+  });
+
+  it('other numbers survive a size change', () => {
+    const typed = applyChange(start(), { type: 'setOverride', key: 'db.capacity', value: 200 });
+    const big = applyChange(typed, { type: 'setServerSize', size: 'big' });
+    expect(big.spec.overrides).toEqual({ 'db.capacity': 200 });
+  });
+
+  it('says why a value is not usable', () => {
+    expect(overrideProblem('server.capacity', Number.NaN)).toBe('Enter a number.');
+    expect(overrideProblem('server.queueMax', -3)).toBe('Must be 0 or more.');
+    expect(overrideProblem('server.capacity', 0)).toBe('Must be more than 0.');
+    expect(overrideProblem('server.queueMax', 0)).toBeUndefined();
   });
 });
 
