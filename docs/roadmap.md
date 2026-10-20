@@ -48,9 +48,9 @@ Page types: **Level** = Play mode (predict → break → fix), **Lab** = A vs B 
 | 1 | One server | Level | Flow | single box (M1) | Foundation | ✅ done (M1, M3) |
 | 2 | Load balancer (+ kill server, kill AZ) | Level | Flow | multi-hop, split, `up` flag | 1 | ✅ done (M2; tradeoff strip) |
 | 3 | Cache | Level | Flow | cache + database nodes, hit rate from TTL ([plan](milestones/topic-3-cache.md)) | 2 | ✅ live at `#/learn/cache` (optional 2b predict question: decide) |
-| 4 | Autoscaling | Level | Flow | capacity over time, boot lag | 2 | |
+| 4 | Autoscaling | Level | Flow | capacity over time, boot lag (twist: VM vs container cold start) | 2 | |
 | 5 | Read replicas | Level | Flow | read/write split | 2 | |
-| 6 | Queues & async jobs | Level | Flow | async node (user doesn't wait) | 2 | |
+| 6 | Queues & async jobs | Level | Flow | queue node, depth over time (= messaging Level A1) | 2 | |
 | 7 | CDN & files | Level | Flow | edge cache by region | 2 | |
 | 8 | Failure & backups | Level | Flow | kill + restore with data loss | 2 | |
 | 9 | Multi-region (+ global users, kill region) | Level | Flow | user groups, distance latency | 8 | |
@@ -115,5 +115,5 @@ See [ADR 0007](decisions/0007-topics-as-isolated-pages.md) for why.
 
 ## After this list
 
-Locked ideas waiting their turn (caching strategies, resilience pack for v1.5, event-driven,
-data patterns, "How systems scale" explainer) and parked ones (SOLID, RAG): [topic-backlog.md](topic-backlog.md).
+Locked ideas waiting their turn (caching strategies, resilience pack for v1.5, messaging pack,
+microservices, data patterns, "How systems scale" explainer) and parked ones (SOLID, RAG, containers as a topic): [topic-backlog.md](topic-backlog.md).
