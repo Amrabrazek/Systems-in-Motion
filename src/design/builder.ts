@@ -1,5 +1,14 @@
 import type { World } from '../engine';
-import { MAX_SERVERS, MAX_USERS, defaultSpec, type DesignSpec, type ServerSize } from './spec';
+import {
+  MAX_SERVERS,
+  MAX_USERS,
+  defaultNumber,
+  defaultSpec,
+  overrideProblem,
+  type DesignSpec,
+  type OverrideKey,
+  type ServerSize,
+} from './spec';
 
 // What the Build panel can change, as pure steps on the spec (docs/milestones/m4-design-v0.md, step 3).
 
@@ -14,7 +23,9 @@ export type BuilderChange =
   | { type: 'setServerCount'; count: number }
   | { type: 'setServerSize'; size: ServerSize }
   | { type: 'setCache'; on: boolean }
-  | { type: 'setUsers'; users: number };
+  | { type: 'setUsers'; users: number }
+  /** undefined = back to the default. */
+  | { type: 'setOverride'; key: OverrideKey; value: number | undefined };
 
 export const startBuilder = (spec: DesignSpec): Builder => ({
   spec,
@@ -40,13 +51,33 @@ export function applyChange(builder: Builder, change: BuilderChange): Builder {
       const count = clamp(change.count, 1, MAX_SERVERS);
       return { serversWithLb: count, spec: { ...spec, servers: { ...spec.servers, count } } };
     }
-    case 'setServerSize':
-      return { ...builder, spec: { ...spec, servers: { ...spec.servers, size: change.size } } };
+    case 'setServerSize': {
+      // Size is the quick knob: picking one replaces a capacity you typed (agreed with Amr).
+      const overrides = withoutKey(spec.overrides, 'server.capacity');
+      return {
+        ...builder,
+        spec: { ...spec, servers: { ...spec.servers, size: change.size }, overrides },
+      };
+    }
     case 'setCache':
       return { ...builder, spec: { ...spec, cache: change.on } };
     case 'setUsers':
       return { ...builder, spec: { ...spec, users: clamp(change.users, 0, MAX_USERS) } };
+    case 'setOverride': {
+      const { key, value } = change;
+      if (value !== undefined && overrideProblem(key, value)) return builder;
+      // Typing the default back in is the same as resetting: keep the tag and source it came with.
+      const isDefault = value === undefined || value === defaultNumber(spec, key).value;
+      const overrides = isDefault
+        ? withoutKey(spec.overrides, key)
+        : { ...spec.overrides, [key]: value };
+      return { ...builder, spec: { ...spec, overrides } };
+    }
   }
+}
+
+function withoutKey(overrides: DesignSpec['overrides'], key: OverrideKey): DesignSpec['overrides'] {
+  return Object.fromEntries(Object.entries(overrides).filter(([name]) => name !== key));
 }
 
 /**

@@ -63,8 +63,26 @@ function defaultEntry(key: OverrideKey, size: ServerSize): NumberEntry {
   return n(key);
 }
 
+export const isOverrideKey = (key: string): key is OverrideKey =>
+  (OVERRIDE_KEYS as readonly string[]).includes(key);
+
+/**
+ * Why a typed value can't be used, or undefined if it can. One rule for the Numbers panel and
+ * for share links, so a value you can type is always a value a link can carry.
+ */
+export function overrideProblem(key: OverrideKey, value: unknown): string | undefined {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return 'Enter a number.';
+  if (value < 0) return 'Must be 0 or more.';
+  if (MUST_BE_POSITIVE.has(key) && value === 0) return 'Must be more than 0.';
+  return undefined;
+}
+
+/** The default for a key, before the engineer typed anything. */
+export const defaultNumber = (spec: DesignSpec, key: OverrideKey): NumberEntry =>
+  defaultEntry(key, spec.servers.size);
+
 /** The engineer's own number: tag U, no source, since they typed it (CLAUDE.md "Content rules"). */
-function entry(spec: DesignSpec, key: OverrideKey): NumberEntry {
+export function numberFor(spec: DesignSpec, key: OverrideKey): NumberEntry {
   const base = defaultEntry(key, spec.servers.size);
   const own = spec.overrides[key];
   if (own === undefined) return base;
@@ -76,7 +94,7 @@ function entry(spec: DesignSpec, key: OverrideKey): NumberEntry {
  * so swapping the world in keeps waiting lines and kills on the boxes that stay.
  */
 export function specToWorld(spec: DesignSpec): World {
-  const number = (key: OverrideKey) => entry(spec, key);
+  const number = (key: OverrideKey) => numberFor(spec, key);
   const serverIds = SERVER_IDS.slice(0, spec.loadBalancer ? spec.servers.count : 1);
 
   const servers: WorkNode[] = serverIds.map((id) => ({
@@ -194,11 +212,9 @@ function problemWith(raw: unknown): string | undefined {
     return 'More than one server needs a load balancer to split the traffic.';
   if (!isRecord(overrides)) return 'This link is broken.';
   for (const [key, value] of Object.entries(overrides)) {
-    if (!(OVERRIDE_KEYS as readonly string[]).includes(key)) return `Unknown number '${key}'.`;
-    if (typeof value !== 'number' || !Number.isFinite(value) || value < 0)
-      return `'${key}' must be a number of 0 or more.`;
-    if (MUST_BE_POSITIVE.has(key as OverrideKey) && value === 0)
-      return `'${key}' must be more than 0.`;
+    if (!isOverrideKey(key)) return `Unknown number '${key}'.`;
+    const problem = overrideProblem(key, value);
+    if (problem) return `'${key}': ${problem}`;
   }
   // Extra keys would ride along unseen and come back in the next copied link.
   const known = ['v', 'users', 'loadBalancer', 'servers', 'cache', 'overrides'];
