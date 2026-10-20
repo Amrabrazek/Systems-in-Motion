@@ -65,7 +65,7 @@ become the first v1 PRs after v0.
 | 0 | Plan (this) | this doc, ADR 0015, roadmap | we agree before code |
 | 1 | Engine: breaking point | `engine/breakingPoint.ts`: pure `findBreakingPoint(world, options)`; doubling then binary search; break rule below; returns users, first box, reason. Sweep numbers + `server.big.capacity` in `teaching.ts` | headless runs are fast and deterministic |
 | 2 | Design spec | `design/spec.ts`: `DesignSpec` type, `defaultSpec`, `specToWorld(spec)` (pure), `encodeSpec` / `decodeSpec` (versioned, validated). No UI. Amr OK'd: no LB ⇒ 1 server; your numbers apply to every server; cache TTL is an override like any number | the URL and the builder share one small shape |
-| 3 | Design page: build + run | `#/design`: builder panel, `FlowStage`, users slider, kill / revive, live meters (latency, errors, RPS). Replaces the placeholder | it's playable |
+| 3 | Design page: build + run | `#/design`: builder panel, `FlowStage`, users slider, kill / revive, live meters (latency, errors, RPS). Replaces the placeholder. LB off ⇒ 1 server, back on ⇒ your last count; Reset restarts your design; no tradeoff card (no single fix) | it's playable |
 | 4 | Parameters panel | click a box → its numbers with tags, edit → U, reset; uses `NumberTag` | engineers can use their own numbers |
 | 5 | Breaking point + share | button + result card + highlight on the stage; "Copy link"; load `?d=`; Playwright smoke; roadmap ✅ | the engineer hook works end to end |
 

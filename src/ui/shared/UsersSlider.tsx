@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { positionToValue, usersScale } from './logScale';
+import { positionToValue, usersScale, type LogScale } from './logScale';
 
 /**
  * Controlled by slider position, not by users: rounding users to a nice number and mapping back
@@ -8,12 +8,15 @@ import { positionToValue, usersScale } from './logScale';
 export function UsersSlider({
   position,
   onChange,
+  scale = usersScale,
 }: {
   position: number;
   onChange: (position: number) => void;
+  /** Learn pages use the default; Design goes higher. */
+  scale?: LogScale;
 }) {
   const id = useId();
-  const users = positionToValue(usersScale, position).toLocaleString('en-US');
+  const users = positionToValue(scale, position).toLocaleString('en-US');
   return (
     <div className="users-slider">
       <label htmlFor={id}>Users</label>
@@ -21,7 +24,7 @@ export function UsersSlider({
         id={id}
         type="range"
         min={0}
-        max={usersScale.steps}
+        max={scale.steps}
         value={position}
         aria-valuetext={`${users} users`}
         onChange={(event) => onChange(Number(event.target.value))}
